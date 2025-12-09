@@ -7,7 +7,7 @@ const sanitizeUser = (user) => { // to remove pass from response
     return safeUser;
 };
 
-exports.createUser = catchAsync(async (data) => {
+exports.createUser = async (data) => {
     const {
         username,
         email,
@@ -42,9 +42,9 @@ exports.createUser = catchAsync(async (data) => {
     });
     await user.save();
     return sanitizeUser(user);
-})
+}
 
-exports.getAllUsers = catchAsync(async (data) => {
+exports.getAllUsers = async (data) => {
     const page = parseInt(data.page) || 1;
     const limit = parseInt(data.limit) || 10;
     const skip = (page - 1) * limit;
@@ -58,19 +58,19 @@ exports.getAllUsers = catchAsync(async (data) => {
             totalPages: Math.ceil(totalUsers / limit)
         }
     };
-})
+}
 
-exports.getUserById = catchAsync(async (data) => {
+exports.getUserById = async (data) => {
     const user = await User.findById(data.id).select('-password');
     if (!user) throw new AppError('user not found', 404)
     return user
-})
+}
 
-exports.deleteUser = catchAsync(async (data) => {
+exports.deleteUser = async (data) => {
     let deletedUser = await User.findByIdAndDelete(data.id);
     if (!deletedUser) throw new AppError('User not found', 404)
     return { message: 'User deleted successfully' };
-})
+}
 
 exports.updateUser = async (data) => {
     const { id, username, email, password, name, phoneNo, country, dateOfBirth, gender, bio, address, emergencyContact, accessibilityNeeds } = data;

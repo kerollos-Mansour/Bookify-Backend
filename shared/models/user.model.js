@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcryptjs = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
 
@@ -68,17 +68,14 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true }); // automatically adds createdAt & updatedAt
 
 
-userSchema.pre('save', async function (next) {
-    if (this.isModified('password')) {
-        return next();
-    }
-    const salt = await bcryptjs.genSalt(10);
-    this.password = await bcryptjs.hash(this.password, salt);
-    next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 userSchema.methods.comparePassword = async function (password) {
-    return await bcryptjs.compare(password, this.password);
+    return await bcrypt.compare(password, this.password);
 }
 
 const User = mongoose.model('User', userSchema);

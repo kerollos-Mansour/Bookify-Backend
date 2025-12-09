@@ -3,11 +3,13 @@ const userService = require('../services/user.service');
 const catchAsync = require('../../../shared/utils/catchError.utils');
 const AppError = require('../../../shared/utils/appError.utils')
 
-exports.createUser = catchAsync(async (req, res) => {
+exports.createUser = catchAsync(async (req, res, next) => {
     const user = await userService.createUser(req.body)
+    console.log(user)
+    
     res.status(201).json({
-        message: 'User created successfully',
-        user: user
+        status: 'success',
+        data: user
     });
 })
 
@@ -38,7 +40,7 @@ exports.getUserById = catchAsync(async (req, res, next) => {
 
 exports.deleteUser = catchAsync(async (req, res, next) => {
     const id = req.params.id;
-    const user = userService.deleteUser({ id })
+    const user = await userService.deleteUser({ id })
     if (!user) return next(new AppError('user not found', 404))
 
     res.status(200).json({
@@ -50,8 +52,8 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
 
 exports.updateUser = catchAsync(async (req, res, next) => {
     const { id } = req.params; // user id from URL
-    const user = userService.updateUser({ id, ...req.body })
-    
+    const user = await userService.updateUser({ id, ...req.body })
+
     if (!user) return next(new AppError('user not found', 404))
 
     res.status(200).json({ message: 'User updated successfully', user });

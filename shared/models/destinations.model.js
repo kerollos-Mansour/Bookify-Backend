@@ -16,12 +16,12 @@ const destinationSchema = new mongoose.Schema({
         required: [true, 'Price is required'],
     },
     image: {
-        type: String,
-        required: [true, 'Image is required'],
+        type: String
     },
     categoryId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+        type: String
+        // type: mongoose.Schema.Types.ObjectId,
+        // ref: 'Category',
     },
     bestSeller: {
         type: Boolean,
@@ -40,6 +40,7 @@ const destinationSchema = new mongoose.Schema({
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt
 });
+
 
 // Add indexes for better query performance
 destinationSchema.index({ categoryId: 1 });

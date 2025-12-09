@@ -1,6 +1,6 @@
 const hotelService = require("../services/hotel.service");
 const catchAsync = require("../../../shared/utils/catchError.utils");
-const httpStatusText = require("../../../shared/utils/appError");
+const httpStatusText = require("../../../shared/utils/appError.utils");
 
 
 /**

@@ -1,0 +1,888 @@
+{
+  "info": {
+    "_postman_id": "bookify-api-collection",
+    "name": "Bookify Backend API",
+    "description": "Comprehensive API collection for Bookify Backend - Book management system with destinations, hotels, bookings, and user management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('success');",
+                  "});",
+                  "",
+                  "pm.test(\"User data is returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "});",
+                  "",
+                  "// Save user ID for later use",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.environment.set(\"user_id\", jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"SecurePass123!\",\n    \"phone\": \"+1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user in the system"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('success');",
+                  "});",
+                  "",
+                  "// Save auth token if provided",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        pm.environment.set(\"auth_token\", jsonData.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with email and password"
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints for user registration and login"
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('success');",
+                  "});",
+                  "",
+                  "// Save user ID",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.environment.set(\"user_id\", jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Jane Smith\",\n    \"email\": \"jane.smith@example.com\",\n    \"password\": \"Pass1234!\",\n    \"phone\": \"+0987654321\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            },
+            "description": "Create a new user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is an array or object\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            },
+            "description": "Retrieve all users"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"User data is returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            },
+            "description": "Get a specific user by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('success');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Jane Smith Updated\",\n    \"phone\": \"+1111111111\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            },
+            "description": "Update user information"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            },
+            "description": "Delete a user by ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "User management endpoints"
+    },
+    {
+      "name": "Destinations",
+      "item": [
+        {
+          "name": "Create Destination",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('success');",
+                  "});",
+                  "",
+                  "// Save destination ID",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.environment.set(\"destination_id\", jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Paris\",\n    \"country\": \"France\",\n    \"description\": \"The City of Light - famous for the Eiffel Tower, art museums, and elegant cafes\",\n    \"categoryId\": \"city-break\",\n    \"imageUrl\": \"https://example.com/paris.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/destinations",
+              "host": ["{{base_url}}"],
+              "path": ["destinations"]
+            },
+            "description": "Create a new destination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Destinations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('success');",
+                  "});",
+                  "",
+                  "pm.test(\"Destinations array exists\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/destinations?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["destinations"],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "city-break",
+                  "description": "Filter by category",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Results per page"
+                }
+              ]
+            },
+            "description": "Get all destinations with optional filtering and pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Destination by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Destination data is returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/destinations/{{destination_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["destinations", "{{destination_id}}"]
+            },
+            "description": "Get a specific destination by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Destination",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('success');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Paris - Updated\",\n    \"description\": \"The City of Light - Updated description with more details about museums and culture\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/destinations/{{destination_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["destinations", "{{destination_id}}"]
+            },
+            "description": "Update destination information"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Destination",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/destinations/{{destination_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["destinations", "{{destination_id}}"]
+            },
+            "description": "Delete a destination by ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Destination management endpoints"
+    },
+    {
+      "name": "Hotels",
+      "item": [
+        {
+          "name": "Create Hotel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});",
+                  "",
+                  "// Save hotel ID",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.hotel && jsonData.data.hotel._id) {",
+                  "        pm.environment.set(\"hotel_id\", jsonData.data.hotel._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Grand Hotel Paris\",\n    \"city\": \"Paris\",\n    \"country\": \"France\",\n    \"address\": \"123 Champs-Élysées\",\n    \"rate\": 250,\n    \"propertyCategory\": \"luxury\",\n    \"rating\": 4.5,\n    \"description\": \"Luxury hotel in the heart of Paris\",\n    \"amenities\": [\"WiFi\", \"Pool\", \"Spa\", \"Restaurant\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/hotels",
+              "host": ["{{base_url}}"],
+              "path": ["hotels"]
+            },
+            "description": "Create a new hotel"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Hotels",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});",
+                  "",
+                  "pm.test(\"Hotels array exists\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.hotels).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/hotels?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["hotels"],
+              "query": [
+                {
+                  "key": "city",
+                  "value": "Paris",
+                  "description": "Filter by city",
+                  "disabled": true
+                },
+                {
+                  "key": "country",
+                  "value": "France",
+                  "description": "Filter by country",
+                  "disabled": true
+                },
+                {
+                  "key": "minRate",
+                  "value": "100",
+                  "description": "Minimum rate",
+                  "disabled": true
+                },
+                {
+                  "key": "maxRate",
+                  "value": "500",
+                  "description": "Maximum rate",
+                  "disabled": true
+                },
+                {
+                  "key": "propertyCategory",
+                  "value": "luxury",
+                  "description": "Property category",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "Grand",
+                  "description": "Search term",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "rating",
+                  "description": "Sort by field",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Results per page"
+                }
+              ]
+            },
+            "description": "Get all hotels with optional filters, sorting, and pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Hotel by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Hotel data is returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.hotel).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/hotels/{{hotel_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["hotels", "{{hotel_id}}"]
+            },
+            "description": "Get a specific hotel by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Hotel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Grand Hotel Paris - Premium\",\n    \"rate\": 300,\n    \"rating\": 4.8\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/hotels/{{hotel_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["hotels", "{{hotel_id}}"]
+            },
+            "description": "Update hotel information"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Hotel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/hotels/{{hotel_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["hotels", "{{hotel_id}}"]
+            },
+            "description": "Delete a hotel by ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Hotel management endpoints"
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('success');",
+                  "});",
+                  "",
+                  "// Save booking ID",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data._id) {",
+                  "        pm.environment.set(\"booking_id\", jsonData.data._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"userId\": \"{{user_id}}\",\n    \"hotelId\": \"{{hotel_id}}\",\n    \"checkInDate\": \"2024-03-01\",\n    \"checkOutDate\": \"2024-03-05\",\n    \"guests\": 2,\n    \"totalAmount\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"]
+            },
+            "description": "Create a new booking"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Bookings",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is valid\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"]
+            },
+            "description": "Get all bookings"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Booking by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Booking data is returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{booking_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "{{booking_id}}"]
+            },
+            "description": "Get a specific booking by ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Booking management endpoints"
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    }
+  ]
+}
