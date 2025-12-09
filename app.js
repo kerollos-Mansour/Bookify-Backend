@@ -14,7 +14,6 @@ app.use(express.json())
 
 app.use('/api/v1', v1Routes);
 
-
 // 404 handler
 app.use((req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server`))
@@ -26,5 +25,5 @@ app.use(globalErrorHandler)
 // DB Connection & Server Start
 connectToMongoDB();
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
