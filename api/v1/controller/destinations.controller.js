@@ -1,65 +1,76 @@
-const Destination = require("../../../shared/models/destinations.model");
+const destinationService = require("../services/destinations.service");
 const catchAsync = require("../../../shared/utils/catchError.utils");
-const AppError = require("../../../shared/utils/appError.utils");
 
-// post new destination
+/**
+ * Create a new destination
+ * POST /api/v1/destinations
+ */
 exports.createDestination = catchAsync(async (req, res) => {
-    const data = req.body;
-    try {
-        const destination = new Destination(data);
-        await destination.save();
-        res.status(200).json(destination);
-    } catch (error) {
-        res.status(500).json(error.message);
-    }
-});
-// GET /destinations?categoryId=123&page=1&limit=10 - Get all/filtered
-exports.getAllDestinations = catchAsync(async (req, res) => {
-    const { categoryId, page = 1, limit = 10 } = req.query;
-    let query = {};
+    const destination = await destinationService.createDestination(req.body);
 
-    if (categoryId) query.categoryId = categoryId;
-
-    // pagination
-    const skip = (page - 1) * limit;
-    const destinations = await Destination.find(query)
-        .skip(skip)
-        .limit(Number(limit));
     res.status(201).json({
         status: "success",
-        data: destinations,
+        data: destination
     });
 });
 
-exports.getDestinationById = catchAsync(async (req, res, next) => {
-    const id = req.params.id;
-    let destination = await Destination.findById(id);
-    if (!destination) return next(new AppError("Destination not found", 404));
-    res.status(200).json(destination);
-});
+/**
+ * Get all destinations with optional filtering and pagination
+ * GET /api/v1/destinations?categoryId=123&page=1&limit=10
+ */
+exports.getAllDestinations = catchAsync(async (req, res) => {
+    const { categoryId, page, limit } = req.query;
 
-exports.deleteDestination = catchAsync(async (req, res) => {
-    const id = req.params.id;
-    let deleteDestination = await Destination.findByIdAndDelete(id);
+    const filters = { categoryId };
+    const pagination = { page, limit };
 
-    res.status(200).json(deleteDestination);
-});
-
-exports.updateDestination = catchAsync(async (req, res, next) => {
-    const id = req.params.id;
-    const data = req.body;
-
-    const updatedDestination = await Destination.findByIdAndUpdate(
-        id,
-        data,
-        { new: true, runValidators: true }
-    );
-    if (!updatedDestination) {
-        return next(new AppError('Destination not found', 404))
-    }
+    const result = await destinationService.getAllDestinations(filters, pagination);
 
     res.status(200).json({
-        status: 'success',
+        status: "success",
+        data: result.destinations,
+        pagination: result.pagination
+    });
+});
+
+/**
+ * Get a single destination by ID
+ * GET /api/v1/destinations/:id
+ */
+exports.getDestinationById = catchAsync(async (req, res, next) => {
+    const destination = await destinationService.getDestinationById(req.params.id);
+
+    res.status(200).json({
+        status: "success",
+        data: destination
+    });
+});
+
+/**
+ * Update a destination by ID
+ * PUT /api/v1/destinations/:id
+ */
+exports.updateDestination = catchAsync(async (req, res, next) => {
+    const updatedDestination = await destinationService.updateDestination(
+        req.params.id,
+        req.body
+    );
+
+    res.status(200).json({
+        status: "success",
         data: updatedDestination
+    });
+});
+
+/**
+ * Delete a destination by ID
+ * DELETE /api/v1/destinations/:id
+ */
+exports.deleteDestination = catchAsync(async (req, res) => {
+    const deletedDestination = await destinationService.deleteDestination(req.params.id);
+
+    res.status(200).json({
+        status: "success",
+        data: deletedDestination
     });
 });

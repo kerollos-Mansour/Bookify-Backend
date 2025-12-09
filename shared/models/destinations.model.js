@@ -1,50 +1,50 @@
 const mongoose = require('mongoose');
 
 const destinationSchema = new mongoose.Schema({
-
     name: {
         type: String,
-        required: true,
+        required: [true, 'Destination name is required'],
+        trim: true,
     },
     location: {
         type: String,
-        required: true,
+        required: [true, 'Location is required'],
+        trim: true,
     },
     price: {
         type: String,
-        required: true,
+        required: [true, 'Price is required'],
     },
-    image:{
+    image: {
         type: String,
-        required: true,
+        required: [true, 'Image is required'],
     },
-    categoryId:{
-        // remmber to connect it 
+    categoryId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category',
-        // required: true,
     },
-    bestSeller:{
+    bestSeller: {
         type: Boolean,
         default: false,
     },
-    rating:{
+    rating: {
         type: Number,
         default: 0,
+        min: [0, 'Rating cannot be negative'],
+        max: [5, 'Rating cannot exceed 5'],
     },
-    address:{
+    address: {
         type: String,
-        // required: true,
-    },
-    createdAt:{
-        type: Date,
-        default: Date.now,
-    },
-    updatedAt:{
-        type: Date,
-        default: Date.now,
-    },
-}, { timestamps: true });
+        trim: true,
+    }
+}, {
+    timestamps: true // Automatically adds createdAt and updatedAt
+});
+
+// Add indexes for better query performance
+destinationSchema.index({ categoryId: 1 });
+destinationSchema.index({ bestSeller: 1 });
+destinationSchema.index({ rating: -1 });
 
 const Destination = mongoose.model('Destination', destinationSchema);
 
