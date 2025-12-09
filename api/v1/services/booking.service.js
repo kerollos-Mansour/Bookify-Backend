@@ -1,4 +1,4 @@
-const Booking = require("../../../shared/models/bookingModel");
+const Booking = require("../../../shared/models/booking.model");
 const AppError = require("../../../shared/utils/appError.utils");
 
 /**
