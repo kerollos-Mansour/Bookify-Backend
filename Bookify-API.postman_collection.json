@@ -876,8 +876,479 @@
         }
       ],
       "description": "Booking management endpoints"
+    },
+    {
+      "name": "Rooms",
+      "item": [
+        {
+          "name": "Create Room",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});",
+                  "",
+                  "// Save room ID",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.room && jsonData.data.room._id) {",
+                  "        pm.environment.set(\"room_id\", jsonData.data.room._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"hotelId\": \"{{hotel_id}}\",\n    \"name\": \"Deluxe Suite\",\n    \"sleeps\": 2,\n    \"bedType\": \"king\",\n    \"bedrooms\": 1,\n    \"size\": \"45 sqm\",\n    \"allInclusive\": false,\n    \"amenities\": [\"{{amenity_id}}\"],\n    \"quantity\": 5,\n    \"status\": \"available\",\n    \"price\": {\n        \"original\": 250,\n        \"discounted\": 200,\n        \"discount\": 20,\n        \"currency\": \"USD\"\n    },\n    \"refundable\": {\n        \"isRefundable\": true,\n        \"deadline\": \"2024-12-01T00:00:00.000Z\"\n    },\n    \"images\": [\"https://example.com/room1.jpg\", \"https://example.com/room2.jpg\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rooms",
+              "host": ["{{base_url}}"],
+              "path": ["rooms"]
+            },
+            "description": "Create a new room for a hotel"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Rooms for Hotel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});",
+                  "",
+                  "pm.test(\"Rooms array exists\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.rooms).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/hotel/{{hotel_id}}?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "hotel", "{{hotel_id}}"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "available",
+                  "description": "Filter by room status",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "100",
+                  "description": "Minimum price filter",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "500",
+                  "description": "Maximum price filter",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Results per page"
+                }
+              ]
+            },
+            "description": "Get all rooms for a specific hotel with optional filtering and pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Room by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Room data is returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.room).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "{{room_id}}"]
+            },
+            "description": "Get a specific room by ID with populated amenities and hotel data"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Rooms by Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/hotel/{{hotel_id}}/status/available",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "hotel", "{{hotel_id}}", "status", "available"]
+            },
+            "description": "Get rooms by status (available, occupied, or maintenance) for a specific hotel"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Room",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Premium Deluxe Suite\",\n    \"status\": \"occupied\",\n    \"price\": {\n        \"original\": 300,\n        \"discounted\": 250,\n        \"discount\": 17,\n        \"currency\": \"USD\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "{{room_id}}"]
+            },
+            "description": "Update room information"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Room",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/rooms/{{room_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["rooms", "{{room_id}}"]
+            },
+            "description": "Delete a room by ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Room management endpoints with dynamic amenities support"
+    },
+    {
+      "name": "Amenities",
+      "item": [
+        {
+          "name": "Create Amenity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});",
+                  "",
+                  "// Save amenity ID",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.amenity && jsonData.data.amenity._id) {",
+                  "        pm.environment.set(\"amenity_id\", jsonData.data.amenity._id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"WiFi\",\n    \"description\": \"High-speed wireless internet access\",\n    \"icon\": \"wifi\",\n    \"category\": \"both\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/amenities",
+              "host": ["{{base_url}}"],
+              "path": ["amenities"]
+            },
+            "description": "Create a new amenity"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Amenities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});",
+                  "",
+                  "pm.test(\"Amenities array exists\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.amenities).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/amenities?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["amenities"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "room",
+                  "description": "Filter by category (room, hotel, both)",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "wifi",
+                  "description": "Search amenities by name",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Results per page"
+                }
+              ]
+            },
+            "description": "Get all amenities with optional filtering by category and pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Amenity by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Amenity data is returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.amenity).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/amenities/{{amenity_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["amenities", "{{amenity_id}}"]
+            },
+            "description": "Get a specific amenity by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Amenity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success status\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql('SUCCESS');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Free WiFi\",\n    \"description\": \"Complimentary high-speed wireless internet access throughout the property\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/amenities/{{amenity_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["amenities", "{{amenity_id}}"]
+            },
+            "description": "Update amenity information"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Amenity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/amenities/{{amenity_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["amenities", "{{amenity_id}}"]
+            },
+            "description": "Delete an amenity by ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Amenity management endpoints for dynamic amenity system"
     }
   ],
+
   "variable": [
     {
       "key": "base_url",
