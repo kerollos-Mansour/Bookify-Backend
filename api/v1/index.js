@@ -9,6 +9,8 @@ const userRoutes = require('./routes/user.route');
 const authRouter = require('./routes/auth.route');
 const roomRoutes = require('./routes/rooms.route');
 const amenityRoutes = require('./routes/amenities.route');
+const paymentRoutes = require('./routes/payment.route')
+const paymentMethodsRoutes = require('./routes/paymentMethod.route')
 
 // Mount route modules
 router.use('/destinations', destinationRoutes);
@@ -18,5 +20,7 @@ router.use('/users', userRoutes);
 router.use('/auth', authRouter);
 router.use('/rooms', roomRoutes);
 router.use('/amenities', amenityRoutes);
+router.use('/payments', paymentRoutes);
+router.use('/payment-methods', paymentMethodsRoutes);
 
 module.exports = router;
