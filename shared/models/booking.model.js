@@ -3,17 +3,17 @@ const mongoose = require("mongoose");
 const bookingSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: "User",
     required: [true, 'User ID is required']
   },
   hotelId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "hotels",
+    ref: "Hotel",
     required: [true, 'Hotel ID is required'],
   },
   roomId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "rooms",
+    ref: "Room",
     required: [true, 'Room ID is required'],
   },
   checkIn: {
@@ -56,12 +56,12 @@ const bookingSchema = new mongoose.Schema({
     required: [true, 'Total price is required'],
     min: [0, 'Total price cannot be negative']
   },
-  guests: {
-    type: Number,
-    default: 1,
-    max: [10, 'Maximum 10 guests allowed'],
-    required: [true, 'Number of guests is required']
-  },
+  // guests: {
+  //   type: Number,
+  //   default: 1,
+  //   max: [10, 'Maximum 10 guests allowed'],
+  //   required: [true, 'Number of guests is required']
+  // },
   currency: {
     type: String,
     required: [true, 'Currency is required'],
@@ -77,24 +77,25 @@ const bookingSchema = new mongoose.Schema({
     }
   },
   bookingNumber: {
-    type: Number,
+    type: String,
     required: [true, 'Booking number is required'],
     unique: true
   },
-  createdAt: {
-    type: Date,
-    required: [true, 'Created date is required'],
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date
-  },
-});
+  fees: { type: Number, default: 0 }
+  // createdAt: {
+  //   type: Date,
+  //   required: [true, 'Created date is required'],
+  //   default: Date.now
+  // },
+  // updatedAt: {
+  //   type: Date
+  // },
+},{ timestamps: true });
 
 // Add indexes for better query performance
 bookingSchema.index({ userId: 1 });
 bookingSchema.index({ hotelId: 1 });
-bookingSchema.index({ bookingNumber: 1 });
 bookingSchema.index({ status: 1 });
 
 module.exports = mongoose.model("Booking", bookingSchema);
+
