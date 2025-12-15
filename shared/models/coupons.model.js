@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const couponsSchema = new mongoose.Schema({
   _id: {
     type: mongoose.Schema.Types.ObjectId,
-    default: () => uuidv4(),
     auto: true,
   },
   code: {
@@ -39,7 +38,7 @@ const couponsSchema = new mongoose.Schema({
     min: 0,
     validate: {
       validator: function (value) {
-        if (this.discountType === "percenatge") {
+        if (this.discountType === "percentage") {
           return value <= 100;
         }
         return true;
@@ -61,7 +60,7 @@ const couponsSchema = new mongoose.Schema({
       message: "maxDiscount is only applicable for percentage discounts",
     },
   },
-  validForm: {
+  validFrom: {
     type: Date,
     required: true,
     default: Date.now,
@@ -71,7 +70,7 @@ const couponsSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: function (value) {
-        return value > this.validForm;
+        return value > this.validFrom;
       },
       message: "validTo must be after validFrom",
     },
@@ -103,9 +102,9 @@ couponsSchema.virtual("isExpired").get(function () {
   const now = new Date();
   return (
     this.isActive &&
-    now >= this.validForm &&
-    now >=
-      this.validTo(this.usageLimit === null || this.usedCount < this.usageLimit)
+    now >= this.validFrom &&
+    now <= this.validTo &&
+    (this.usageLimit === null || this.usedCount < this.usageLimit)
   );
 });
 
@@ -116,9 +115,8 @@ couponsSchema.virtual("remainingUses").get(function () {
 
 couponsSchema.virtual("effectiveDiscountType").get(function () {
   if (this.discountType === "free_night") {
-    return `Buy ${this.discountValue - 1} nights, get ${
-      this.discountValue
-    }th free`;
+    return `Buy ${this.discountValue - 1} nights, get ${this.discountValue
+      }th free`;
   }
   return this.discountType;
 });

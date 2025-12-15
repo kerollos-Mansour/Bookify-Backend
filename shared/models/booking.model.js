@@ -41,9 +41,9 @@ const bookingSchema = new mongoose.Schema({
     required: [true, 'Number of nights is required'],
     min: [1, 'Nights must be at least 1']
   },
-  subtotal: {
+  subTotal: {
     type: Number,
-    required: [true, 'Subtotal is required'],
+    required: [, 'Subtotal is required'],
     min: [0, 'Subtotal cannot be negative']
   },
   pricePerNight: {
@@ -76,11 +76,34 @@ const bookingSchema = new mongoose.Schema({
       message: '{VALUE} is not a valid booking status'
     }
   },
-  bookingNumber: {
-    type: Number,
-    required: [true, 'Booking number is required'],
-    unique: true
+  couponId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "coupon",
+    default: null
   },
+  // payment 
+  paymentStatus: {
+    type: String,
+    required: [true, 'Payment status is required'],
+    default: "pending",
+    enum: {
+      values: ["unpaid","pending", "paid", "failed"],
+      message: '{VALUE} is not a valid payment status'
+    }
+  },
+  paymentMethod: {
+    type: String,
+    required: [true, 'Payment method is required'],
+    enum: {
+      values: ["stripe", "paypal", "cash", "other"],
+      message: '{VALUE} is not a valid payment method'
+    }
+  },
+  paymentIntentId: {
+    type: String,
+    required: [true, 'Payment intent ID is required']
+  },
+
   createdAt: {
     type: Date,
     required: [true, 'Created date is required'],
