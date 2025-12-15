@@ -61,7 +61,7 @@ const createBooking = async (bookingData) => {
   }
 
   // Calculate nights and price
-  const oneDay = 24 * 60 * 1000;
+  const oneDay = 24 * 60 *60 * 1000;
   const nights = Math.round(Math.abs((checkOutDate - checkInDate) / oneDay))
 
   if (nights < 1) {
@@ -88,7 +88,7 @@ const createBooking = async (bookingData) => {
     if (now < new Date(coupon.validFrom) || now > new Date(coupon.validTo)) {
       throw new AppError("Coupon is not valid at this time", 400);
     }
-    // Check night
+    // Check ~
     if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
       throw new AppError("Invalid check-in or check-out date", 400);
     }
