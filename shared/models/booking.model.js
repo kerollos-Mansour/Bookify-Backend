@@ -81,20 +81,30 @@ const bookingSchema = new mongoose.Schema({
     required: [true, 'Booking number is required'],
     unique: true
   },
-  createdAt: {
-    type: Date,
-    required: [true, 'Created date is required'],
-    default: Date.now
+  fees: { type: Number, default: 0 },
+  paymentStatus: {
+    type: String,
+    enum: ["unpaid", "paid", "refunded", "failed"],
+    default: "unpaid",
   },
-  updatedAt: {
-    type: Date
-  },
-});
+  paymentIntentId: { type: String, unique: true, sparse: true },
+  paymentMethod: { type: String, enum: ["card", "bank"], default: "card" },
+
+  // createdAt: {
+  //   type: Date,
+  //   required: [true, 'Created date is required'],
+  //   default: Date.now
+  // },
+  // updatedAt: {
+  //   type: Date
+  // },
+}, { timestamps: true });
 
 // Add indexes for better query performance
 bookingSchema.index({ userId: 1 });
 bookingSchema.index({ hotelId: 1 });
 bookingSchema.index({ bookingNumber: 1 });
 bookingSchema.index({ status: 1 });
+bookingSchema.index({ paymentStatus: 1 });
 
 module.exports = mongoose.model("Booking", bookingSchema);
