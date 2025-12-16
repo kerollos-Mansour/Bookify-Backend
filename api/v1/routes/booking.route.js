@@ -4,9 +4,18 @@ const {
     createBooking,
     getBooking,
 } = require("../controller/booking.controller");
-const { get } = require("mongoose");
-router.post("/", createBooking);
+const validate = require("../../../shared/middlewares/validate.middleware");
+const { protect } = require("../../../shared/middlewares/jwt.middle");
+const {
+    createBookingSchema,
+    bookingIdSchema,
+} = require("../validators/booking.validator");
+
+// Public routes
 router.get("/", getBooking);
-router.get('/:id', getBooking);
+router.get("/:id", validate({ params: bookingIdSchema }), getBooking);
+
+// Protected routes - User must be authenticated
+router.post("/", protect, validate(createBookingSchema), createBooking);
 
 module.exports = router;

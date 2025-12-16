@@ -1,25 +1,53 @@
-const amenityController = require("../controller/amenity.controller");
 const express = require("express");
 const router = express.Router();
+const {
+    getAmenities,
+    getAmenityById,
+    createAmenity,
+    updateAmenity,
+    deleteAmenity,
+} = require("../controller/amenity.controller");
+const validate = require("../../../shared/middlewares/validate.middleware");
+const { protect, allowTo } = require("../../../shared/middlewares/jwt.middle");
+const {
+    createAmenity: createAmenitySchema,
+    updateAmenity: updateAmenitySchema,
+    amenityIdSchema,
+    amenityQuerySchema,
+} = require("../validators/amenity.validator");
 
 /**
  * Amenity Routes
  * Base path: /api/v1/amenities
  */
 
-// Get all amenities with optional filtering
-router.get("/", amenityController.getAmenities);
+// Public routes
+router.get("/", validate({ query: amenityQuerySchema }), getAmenities);
+router.get("/:id", validate({ params: amenityIdSchema }), getAmenityById);
 
-// Get amenity by ID
-router.get("/:id", amenityController.getAmenityById);
+// Protected routes - Admin only
+router.post(
+    "/",
+    protect,
+    allowTo("admin"),
+    validate(createAmenitySchema),
+    createAmenity
+);
 
-// Create new amenity
-router.post("/", amenityController.createAmenity);
+router.put(
+    "/:id",
+    protect,
+    allowTo("admin"),
+    validate({ params: amenityIdSchema, body: updateAmenitySchema }),
+    updateAmenity
+);
 
-// Update amenity
-router.put("/:id", amenityController.updateAmenity);
-
-// Delete amenity
-router.delete("/:id", amenityController.deleteAmenity);
+router.delete(
+    "/:id",
+    protect,
+    allowTo("admin"),
+    validate({ params: amenityIdSchema }),
+    deleteAmenity
+);
 
 module.exports = router;
