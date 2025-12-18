@@ -18,14 +18,26 @@ const createHotel = catchAsync(async (req, res, next) => {
 
 /**
  * Get all hotels with filtering, pagination, and sorting
- * GET /api/v1/hotels?city=xxx&country=xxx&minRate=100&maxRate=500&search=xxx&sort=rating&page=1&limit=10
+ * GET /api/v1/hotels?location=xxx&checkIn=2024-02-06&checkOut=2024-02-08&adults=2&rooms=1&city=xxx&country=xxx&minRate=100&maxRate=500&search=xxx&sort=rating&page=1&limit=10
  */
 const getHotels = catchAsync(async (req, res, next) => {
-    const { city, country, minRate, maxRate, propertyCategory, search } = req.query;
+    const { city, country, minRate, maxRate, propertyCategory, search, location, checkIn, checkOut, adults, rooms } = req.query;
     const { page, limit } = req.query;
     const { sort } = req.query;
 
-    const filters = { city, country, minRate, maxRate, propertyCategory, search };
+    const filters = {
+        city,
+        country,
+        minRate,
+        maxRate,
+        propertyCategory,
+        search,
+        location,
+        checkIn,
+        checkOut,
+        adults: adults ? Number(adults) : undefined,
+        rooms: rooms ? Number(rooms) : undefined
+    };
     const pagination = { page, limit };
     const sorting = { sort };
 

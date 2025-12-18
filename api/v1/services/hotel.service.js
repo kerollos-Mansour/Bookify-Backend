@@ -1,4 +1,6 @@
 const Hotel = require("../../../shared/models/hotel.model");
+const Room = require("../../../shared/models/rooms.model");
+const Booking = require("../../../shared/models/booking.model");
 const mongoose = require("mongoose");
 const AppError = require("../../../shared/utils/appError.utils");
 
@@ -20,8 +22,17 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}) => {
   // Build filter query
   const query = {};
 
+  // Location search - searches both hotel name AND city
+  if (filters.location) {
+    query.$or = [
+      { name: { $regex: filters.location, $options: "i" } },
+      { "location.city": { $regex: filters.location, $options: "i" } },
+      { "location.address": { $regex: filters.location, $options: "i" } }
+    ];
+  }
+
   if (filters.city) {
-    query["location.city"] = filters.city;
+    query["location.city"] = { $regex: filters.city, $options: "i" };
   }
 
   if (filters.country) {
@@ -50,12 +61,98 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}) => {
     sort.hotelRating = 1;
   } else if (sorting.sort === "-rating") {
     sort.hotelRating = -1;
+  } else if (sorting.sort === "price") {
+    sort.lowRate = 1;
+  } else if (sorting.sort === "-price") {
+    sort.lowRate = -1;
   } else {
     sort.createdAt = -1;
   }
 
-  // Execute queries
-  const hotels = await Hotel.find(query).sort(sort).skip(skip).limit(limit);
+  // Execute initial hotel query
+  let hotels = await Hotel.find(query).sort(sort).skip(skip).limit(limit);
+
+  // If checkIn/checkOut dates are provided, filter by room availability
+  if (filters.checkIn && filters.checkOut) {
+    const checkInDate = new Date(filters.checkIn);
+    const checkOutDate = new Date(filters.checkOut);
+
+    // Get hotel IDs from initial results
+    const hotelIds = hotels.map(h => h._id);
+
+    // Find all rooms for these hotels
+    const roomQuery = { hotelId: { $in: hotelIds }, status: "available" };
+
+    // Filter by capacity if provided
+    if (filters.adults) {
+      roomQuery.sleeps = { $gte: filters.adults };
+    }
+
+    const availableRooms = await Room.find(roomQuery);
+
+    // Find bookings that overlap with the requested dates
+    const overlappingBookings = await Booking.find({
+      hotelId: { $in: hotelIds },
+      $or: [
+        {
+          checkIn: { $lt: checkOutDate },
+          checkOut: { $gt: checkInDate }
+        }
+      ],
+      status: { $in: ["pending", "confirmed"] }
+    });
+
+    // Group rooms by hotel and check availability
+    const hotelRoomAvailability = {};
+
+    availableRooms.forEach(room => {
+      const hotelId = room.hotelId.toString();
+      if (!hotelRoomAvailability[hotelId]) {
+        hotelRoomAvailability[hotelId] = [];
+      }
+      hotelRoomAvailability[hotelId].push(room);
+    });
+
+    // Remove booked rooms from availability
+    overlappingBookings.forEach(booking => {
+      const hotelId = booking.hotelId.toString();
+      const roomId = booking.roomId.toString();
+
+      if (hotelRoomAvailability[hotelId]) {
+        hotelRoomAvailability[hotelId] = hotelRoomAvailability[hotelId].filter(
+          room => room._id.toString() !== roomId
+        );
+      }
+    });
+
+    // Filter hotels that have available rooms
+    hotels = hotels.filter(hotel => {
+      const hotelId = hotel._id.toString();
+      const availableRoomsForHotel = hotelRoomAvailability[hotelId] || [];
+
+      // If rooms filter is provided, check if hotel has enough available rooms
+      if (filters.rooms) {
+        return availableRoomsForHotel.length >= filters.rooms;
+      }
+
+      return availableRoomsForHotel.length > 0;
+    });
+
+    // Attach available room count to each hotel
+    hotels = hotels.map(hotel => {
+      const hotelObj = hotel.toObject();
+      const hotelId = hotel._id.toString();
+      const availableRoomsForHotel = hotelRoomAvailability[hotelId] || [];
+
+      hotelObj.availableRooms = availableRoomsForHotel.length;
+      hotelObj.lowestAvailableRate = availableRoomsForHotel.length > 0
+        ? Math.min(...availableRoomsForHotel.map(r => r.price.original))
+        : null;
+
+      return hotelObj;
+    });
+  }
+
   const total = await Hotel.countDocuments(query);
 
   return {
@@ -63,8 +160,8 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}) => {
     pagination: {
       page,
       limit,
-      total,
-      totalPages: Math.ceil(total / limit),
+      total: hotels.length, // Use filtered count if dates are provided
+      totalPages: Math.ceil(hotels.length / limit),
     },
   };
 };

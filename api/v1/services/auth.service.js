@@ -10,7 +10,8 @@ const crypto = require("crypto");
 // now we have 2 options to save users (reqister and create user ) reqister will be easy
 // for anyone who want to create an account unlike create_user will be from dashboard 
 exports.register = async (userData) => {
-  const { username, email, password } = userData;
+  const { username, name, phoneNo, email, password } = userData;
+  console.log(userData)
   if (!username || !email || !password) {
     throw new ApiError("Username, email, and password are required", 400);
   }
@@ -24,7 +25,7 @@ exports.register = async (userData) => {
       throw new ApiError("Username already exists", 400);
     }
   }
-  const user = await User.create({ username, email, password });
+  const user = await User.create({ username, name, phoneNo, email, password });
 
   const accessToken = generateToken(user);
   const refreshToken = generateRefreshToken(user);

@@ -73,6 +73,9 @@ exports.createHotelSchema = Joi.object({
     location: locationSchema.optional().messages({
         "object.base": "Location must be a valid object.",
     }),
+    hotelDetails: Joi.string().trim().optional().messages({
+        "string.base": "Hotel details must be a valid text.",
+    }),
 });
 
 // Update Hotel Schema
@@ -135,6 +138,28 @@ exports.hotelIdSchema = Joi.object({
 
 // Query Schema for filtering and pagination (GET /hotels)
 exports.hotelQuerySchema = Joi.object({
+    location: Joi.string().trim().optional().messages({
+        "string.base": "Location must be a valid text.",
+    }),
+    checkIn: Joi.date().iso().optional().messages({
+        "date.base": "Check-in must be a valid date.",
+        "date.format": "Check-in must be in ISO format (YYYY-MM-DD).",
+    }),
+    checkOut: Joi.date().iso().min(Joi.ref('checkIn')).optional().messages({
+        "date.base": "Check-out must be a valid date.",
+        "date.format": "Check-out must be in ISO format (YYYY-MM-DD).",
+        "date.min": "Check-out must be after check-in date.",
+    }),
+    adults: Joi.number().integer().min(1).max(10).optional().messages({
+        "number.base": "Adults must be a valid number.",
+        "number.min": "Adults must be at least 1.",
+        "number.max": "Adults cannot exceed 10.",
+    }),
+    rooms: Joi.number().integer().min(1).max(10).optional().messages({
+        "number.base": "Rooms must be a valid number.",
+        "number.min": "Rooms must be at least 1.",
+        "number.max": "Rooms cannot exceed 10.",
+    }),
     city: Joi.string().trim().optional().messages({
         "string.base": "City must be a valid text.",
     }),
