@@ -48,19 +48,19 @@ exports.login = async (userData) => {
   const { email, password } = userData;
 
   if (!email || !password) {
-    throw new ApiError(400, "Email and password are required");
+    throw new ApiError("Email and password are required",400);
   }
 
   const user = await User.findOne({ email })
 
   if (!user) {
-    throw new ApiError(400, "Invalid email or password")
+    throw new ApiError("Invalid email or password", 400);
   }
 
   const isPasswordValid = await user.comparePassword(password)
 
   if (!isPasswordValid) {
-    throw new ApiError(400, "Invalid email or password")
+    throw new ApiError("Invalid email or password", 400)
   }
 
   const accessToken = generateToken(user._id);
