@@ -11,14 +11,14 @@ const getAllDestinations = catchAsync(async (req, res) => {
         bestSeller: req.query.bestSeller === 'true',
         featured: req.query.featured === 'true'
     };
-    
+
     const pagination = {
         page: req.query.page,
         limit: req.query.limit
     };
-    
+
     const result = await destinationService.getAllDestinations(filters, pagination);
-    
+
     res.status(200).json({
         status: "success",
         data: result
@@ -31,7 +31,7 @@ const getAllDestinations = catchAsync(async (req, res) => {
  */
 const getGroupedDestinations = catchAsync(async (req, res) => {
     const result = await destinationService.getDestinationsGroupedByCategory();
-    
+
     res.status(200).json({
         status: "success",
         data: result
@@ -44,7 +44,7 @@ const getGroupedDestinations = catchAsync(async (req, res) => {
  */
 const getDestination = catchAsync(async (req, res) => {
     const destination = await destinationService.getDestination(req.params.identifier);
-    
+
     res.status(200).json({
         status: "success",
         data: { destination }
@@ -58,7 +58,7 @@ const getDestination = catchAsync(async (req, res) => {
  */
 const searchByDestination = catchAsync(async (req, res) => {
     const { identifier } = req.params;
-    
+
     // User can override some filters on the search page
     const userOverrides = {
         minRate: req.query.minRate,
@@ -69,18 +69,18 @@ const searchByDestination = catchAsync(async (req, res) => {
         adults: req.query.adults,
         rooms: req.query.rooms
     };
-    
+
     const pagination = {
         page: req.query.page,
         limit: req.query.limit
     };
-    
+
     const result = await destinationService.searchByDestination(
         identifier,
         userOverrides,
         pagination
     );
-    
+
     res.status(200).json({
         status: "success",
         data: result
@@ -93,7 +93,7 @@ const searchByDestination = catchAsync(async (req, res) => {
  */
 const createDestination = catchAsync(async (req, res) => {
     const destination = await destinationService.createDestination(req.body);
-    
+
     res.status(201).json({
         status: "success",
         data: { destination }
@@ -109,7 +109,7 @@ const updateDestination = catchAsync(async (req, res) => {
         req.params.id,
         req.body
     );
-    
+
     res.status(200).json({
         status: "success",
         data: { destination }
@@ -122,7 +122,7 @@ const updateDestination = catchAsync(async (req, res) => {
  */
 const deleteDestination = catchAsync(async (req, res) => {
     await destinationService.deleteDestination(req.params.id);
-    
+
     res.status(204).json({
         status: "success",
         data: null

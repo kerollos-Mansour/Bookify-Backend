@@ -3,6 +3,9 @@ require('dotenv').config();
 const { connectToMongoDB } = require('./shared/config/database.config');
 const v1Routes = require('./api/v1');
 const cors = require('cors');
+// const multer = require("multer");
+// const { fileStorage, fileFilter } = require("./shared/config/multer.config");
+const path = require("path");
 
 const AppError = require('./shared/utils/appError.utils');
 const globalErrorHandler = require('./shared/middlewares/ErrorHandeler.middleware');
@@ -18,11 +21,14 @@ app.use(cors(
     credentials: true
   }
 ))
+// app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
+// app.use("/uploads", express.static(path.join(__dirname, "uplods")));
+
 app.use('/api/v1', v1Routes);
 
 // 404 handler
 app.use((req, res, next) => {
-    next(new AppError(`Can't find ${req.originalUrl} on this server`))
+  next(new AppError(`Can't find ${req.originalUrl} on this server`))
 })
 
 app.use(globalErrorHandler)

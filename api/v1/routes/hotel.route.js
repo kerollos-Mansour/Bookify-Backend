@@ -14,6 +14,7 @@ const {
     hotelIdSchema,
     hotelQuerySchema,
 } = require("../validators/hotel.validator");
+const upload = require("../../../shared/config/multer.config");
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ router.post(
     "/",
     protect,
     allowTo("admin"),
-    validate(createHotelSchema),
+    upload.array("images", 10),
     createHotel
 );
 router.put(

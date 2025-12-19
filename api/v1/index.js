@@ -11,6 +11,7 @@ const roomRoutes = require("./routes/rooms.route");
 const couponRoutes = require("./routes/coupons.route");
 const amenityRoutes = require("./routes/amenities.route");
 const categoryRoutes = require("./routes/category.route");
+const imageRoutes = require("./routes/image.route");
 
 // Mount route modules
 router.use("/destinations", destinationRoutes);
@@ -22,5 +23,6 @@ router.use("/rooms", roomRoutes);
 router.use("/coupons", couponRoutes);
 router.use("/amenities", amenityRoutes);
 router.use("/categories", categoryRoutes);
+router.use("/images", imageRoutes);
 
 module.exports = router;

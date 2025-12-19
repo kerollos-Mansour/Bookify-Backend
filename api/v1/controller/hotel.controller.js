@@ -8,6 +8,10 @@ const httpStatusText = require("../../../shared/utils/appError.utils");
  * POST /api/v1/hotels
  */
 const createHotel = catchAsync(async (req, res, next) => {
+    if (req.files) {
+        req.body.images = req.files.map(file => file.path);
+    }
+
     const hotel = await hotelService.createHotel(req.body);
 
     res.status(201).json({

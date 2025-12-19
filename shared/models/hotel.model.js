@@ -41,7 +41,8 @@ const hotelSchema = new mongoose.Schema({
         trim: true
     },
     images: [{
-        type: String
+        type: String,
+        required:true
     }],
     tripAdvisorRating: {
         type: Number,
