@@ -138,6 +138,9 @@ exports.hotelIdSchema = Joi.object({
 
 // Query Schema for filtering and pagination (GET /hotels)
 exports.hotelQuerySchema = Joi.object({
+    featured: Joi.boolean().optional().messages({
+        "boolean.base": "Featured must be true or false"
+    }),
     location: Joi.string().trim().optional().messages({
         "string.base": "Location must be a valid text.",
     }),
