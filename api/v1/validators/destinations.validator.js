@@ -1,29 +1,36 @@
 const Joi = require("joi");
 
 // Create Destination Schema
+// Create Destination Schema
 exports.createDestinationSchema = Joi.object({
     name: Joi.string().trim().required().messages({
         "any.required": "Destination name is required.",
         "string.base": "Destination name must be a valid text.",
     }),
 
-    location: Joi.string().trim().required().messages({
-        "any.required": "Location is required.",
-        "string.base": "Location must be a valid text.",
-    }),
-
-    price: Joi.string().required().messages({
-        "any.required": "Price is required.",
-        "string.base": "Price must be a valid string.",
+    description: Joi.string().trim().optional().messages({
+        "string.base": "Description must be a valid text.",
     }),
 
     image: Joi.string().uri().optional().messages({
         "string.uri": "Image must be a valid URL.",
     }),
 
-    categoryId: Joi.string().optional().messages({
+    categoryId: Joi.string().alphanum().length(24).required().messages({
+        "any.required": "Category ID is required.",
         "string.base": "Category ID must be a valid string.",
+        "string.length": "Category ID must be a valid 24-character Object ID.",
     }),
+
+    searchConfig: Joi.object({
+        location: Joi.string().trim().optional(),
+        city: Joi.string().trim().optional(),
+        country: Joi.string().trim().optional(),
+        minRate: Joi.number().optional(),
+        maxRate: Joi.number().optional(),
+        propertyCategory: Joi.string().optional(),
+        defaultSort: Joi.string().valid('rating', '-rating', 'price', '-price').default('-rating')
+    }).optional(),
 
     bestSeller: Joi.boolean().optional().default(false).messages({
         "boolean.base": "Best seller must be a boolean value.",
@@ -35,9 +42,7 @@ exports.createDestinationSchema = Joi.object({
         "number.max": "Rating cannot exceed 5.",
     }),
 
-    address: Joi.string().trim().optional().messages({
-        "string.base": "Address must be a valid text.",
-    }),
+    displayOrder: Joi.number().optional().default(0),
 });
 
 // Update Destination Schema
@@ -46,21 +51,28 @@ exports.updateDestinationSchema = Joi.object({
         "string.base": "Destination name must be a valid text.",
     }),
 
-    location: Joi.string().trim().optional().messages({
-        "string.base": "Location must be a valid text.",
-    }),
-
-    price: Joi.string().optional().messages({
-        "string.base": "Price must be a valid string.",
+    description: Joi.string().trim().optional().messages({
+        "string.base": "Description must be a valid text.",
     }),
 
     image: Joi.string().uri().optional().messages({
         "string.uri": "Image must be a valid URL.",
     }),
 
-    categoryId: Joi.string().optional().messages({
+    categoryId: Joi.string().alphanum().length(24).optional().messages({
         "string.base": "Category ID must be a valid string.",
+        "string.length": "Category ID must be a valid 24-character Object ID.",
     }),
+
+    searchConfig: Joi.object({
+        location: Joi.string().trim().optional(),
+        city: Joi.string().trim().optional(),
+        country: Joi.string().trim().optional(),
+        minRate: Joi.number().optional(),
+        maxRate: Joi.number().optional(),
+        propertyCategory: Joi.string().optional(),
+        defaultSort: Joi.string().valid('rating', '-rating', 'price', '-price')
+    }).optional(),
 
     bestSeller: Joi.boolean().optional().messages({
         "boolean.base": "Best seller must be a boolean value.",
@@ -72,9 +84,7 @@ exports.updateDestinationSchema = Joi.object({
         "number.max": "Rating cannot exceed 5.",
     }),
 
-    address: Joi.string().trim().optional().messages({
-        "string.base": "Address must be a valid text.",
-    }),
+    displayOrder: Joi.number().optional(),
 });
 
 // Destination ID Parameter Schema

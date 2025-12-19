@@ -7,7 +7,7 @@ const cors = require('cors');
 const AppError = require('./shared/utils/appError.utils');
 const globalErrorHandler = require('./shared/middlewares/ErrorHandeler.middleware');
 
-
+// mongosanitize
 const PORT = process.env.PORT || 3000;
 
 const app = express();

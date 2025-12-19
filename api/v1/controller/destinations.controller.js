@@ -2,75 +2,139 @@ const destinationService = require("../services/destinations.service");
 const catchAsync = require("../../../shared/utils/catchError.utils");
 
 /**
- * Create a new destination
- * POST /api/v1/destinations
+ * GET /destinations
+ * Get all destinations (optionally by category)
  */
-exports.createDestination = catchAsync(async (req, res) => {
-    const destination = await destinationService.createDestination(req.body);
+const getAllDestinations = catchAsync(async (req, res) => {
+    const filters = {
+        categoryId: req.query.categoryId,
+        bestSeller: req.query.bestSeller === 'true',
+        featured: req.query.featured === 'true'
+    };
+    
+    const pagination = {
+        page: req.query.page,
+        limit: req.query.limit
+    };
+    
+    const result = await destinationService.getAllDestinations(filters, pagination);
+    
+    res.status(200).json({
+        status: "success",
+        data: result
+    });
+});
 
+/**
+ * GET /destinations/grouped
+ * Get destinations grouped by category (for homepage)
+ */
+const getGroupedDestinations = catchAsync(async (req, res) => {
+    const result = await destinationService.getDestinationsGroupedByCategory();
+    
+    res.status(200).json({
+        status: "success",
+        data: result
+    });
+});
+
+/**
+ * GET /destinations/:identifier
+ * Get single destination by ID or slug
+ */
+const getDestination = catchAsync(async (req, res) => {
+    const destination = await destinationService.getDestination(req.params.identifier);
+    
+    res.status(200).json({
+        status: "success",
+        data: { destination }
+    });
+});
+
+/**
+ * GET /destinations/:identifier/search
+ * THE KEY ENDPOINT: Execute pre-configured search for a destination
+ * This is called when user clicks "Explore Cairo"
+ */
+const searchByDestination = catchAsync(async (req, res) => {
+    const { identifier } = req.params;
+    
+    // User can override some filters on the search page
+    const userOverrides = {
+        minRate: req.query.minRate,
+        maxRate: req.query.maxRate,
+        sort: req.query.sort,
+        checkIn: req.query.checkIn,
+        checkOut: req.query.checkOut,
+        adults: req.query.adults,
+        rooms: req.query.rooms
+    };
+    
+    const pagination = {
+        page: req.query.page,
+        limit: req.query.limit
+    };
+    
+    const result = await destinationService.searchByDestination(
+        identifier,
+        userOverrides,
+        pagination
+    );
+    
+    res.status(200).json({
+        status: "success",
+        data: result
+    });
+});
+
+/**
+ * POST /destinations
+ * Create new destination (admin)
+ */
+const createDestination = catchAsync(async (req, res) => {
+    const destination = await destinationService.createDestination(req.body);
+    
     res.status(201).json({
         status: "success",
-        data: destination
+        data: { destination }
     });
 });
 
 /**
- * Get all destinations with optional filtering and pagination
- * GET /api/v1/destinations?categoryId=123&page=1&limit=10
+ * PATCH /destinations/:id
+ * Update destination (admin)
  */
-exports.getAllDestinations = catchAsync(async (req, res) => {
-    const { categoryId, page, limit } = req.query;
-
-    const filters = { categoryId };
-    const pagination = { page, limit };
-
-    const result = await destinationService.getAllDestinations(filters, pagination);
-
-    res.status(200).json({
-        status: "success",
-        data: result.destinations,
-        pagination: result.pagination
-    });
-});
-
-/**
- * Get a single destination by ID
- * GET /api/v1/destinations/:id
- */
-exports.getDestinationById = catchAsync(async (req, res, next) => {
-    const destination = await destinationService.getDestinationById(req.params.id);
-
-    res.status(200).json({
-        status: "success",
-        data: destination
-    });
-});
-
-/**
- * Update a destination by ID
- * PUT /api/v1/destinations/:id
- */
-exports.updateDestination = catchAsync(async (req, res, next) => {
-    const updatedDestination = await destinationService.updateDestination(
+const updateDestination = catchAsync(async (req, res) => {
+    const destination = await destinationService.updateDestination(
         req.params.id,
         req.body
     );
-
+    
     res.status(200).json({
         status: "success",
-        data: updatedDestination
+        data: { destination }
     });
 });
 
 /**
- * Delete a destination by ID
- * DELETE /api/v1/destinations/:id
+ * DELETE /destinations/:id
+ * Delete destination (admin)
  */
-exports.deleteDestination = catchAsync(async (req, res) => {
-    const deletedDestination = await destinationService.deleteDestination(req.params.id);
-
-    res.status(200).json({
+const deleteDestination = catchAsync(async (req, res) => {
+    await destinationService.deleteDestination(req.params.id);
+    
+    res.status(204).json({
         status: "success",
-        data: deletedDestination
+        data: null
     });
 });
+
+module.exports = {
+    getAllDestinations,
+    getGroupedDestinations,
+    getDestination,
+    searchByDestination,
+    createDestination,
+    updateDestination,
+    deleteDestination
+};
