@@ -19,3 +19,11 @@ exports.login = catchAsync(async (req, res) => {
         data: loginUser
     })
 })
+exports.forgotPassword = catchAsync(async (req, res) => {
+    const resetToken = await authService.forgotPassword(req.body);
+    
+    res.status(201).json({
+        status: 'success',
+        data: resetToken
+    })
+})

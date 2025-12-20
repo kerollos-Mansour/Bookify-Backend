@@ -6,6 +6,8 @@ const {
   generateRefreshToken,
 } = require("../../../shared/utils/token.util");
 const crypto = require("crypto");
+const sendEmail = require('../../../shared/utils/email.util');
+const emailTemplates = require('../../../shared/utils/emailTemplates.utils');
 
 // now we have 2 options to save users (reqister and create user ) reqister will be easy
 // for anyone who want to create an account unlike create_user will be from dashboard 
@@ -32,6 +34,12 @@ exports.register = async (userData) => {
 
   user.refreshToken = refreshToken;
   await user.save();
+  // email
+  sendEmail({
+    email,
+    subject: "Welcome to Bookify",
+    html: emailTemplates.welcomeTemplate(name)
+  })
   return {
     user: {
       id: user._id,
@@ -48,7 +56,7 @@ exports.login = async (userData) => {
   const { email, password } = userData;
 
   if (!email || !password) {
-    throw new ApiError("Email and password are required",400);
+    throw new ApiError("Email and password are required", 400);
   }
 
   const user = await User.findOne({ email })
@@ -79,4 +87,35 @@ exports.login = async (userData) => {
     accessToken,
     refreshToken,
   };
+}
+
+exports.forgotPassword = async (userData) => {
+  try {
+    const { email } = userData;
+
+    if (!email) {
+      throw new ApiError("Email is required", 400);
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new ApiError("User not found", 404);
+    }
+
+    const resetToken = crypto.randomInt(100000, 999999).toString();
+    const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    sendEmail({
+      email,
+      subject: "Password Reset",
+      html: emailTemplates.forgotPasswordTemplate(resetURL)
+    })
+
+    user.resetToken = resetToken;
+    await user.save();
+
+    return resetToken;
+  } catch (error) {
+    throw new ApiError(error.message, 500);
+  }
 }
