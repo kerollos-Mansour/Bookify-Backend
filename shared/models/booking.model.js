@@ -109,7 +109,6 @@ const bookingSchema = new mongoose.Schema({
     required: [true, 'Created date is required'],
     default: Date.now
   },
-  paymentIntentId: { type: String, unique: true, sparse: true },
 
   bookingNumber: {
     type: String,

@@ -8,7 +8,10 @@ const httpStatusText = require("../../../shared/utils/appError.utils");
  * Protected route: user must be logged in
  */
 exports.createBooking = catchAsync(async (req, res) => {
-  const booking = await bookingService.createBooking(req.user, req.body);
+  const booking = await bookingService.createBooking({
+    ...req.body,
+    userId: req.user._id
+  });
   res.status(201).json({
     status: httpStatusText.SUCCESS,
     message: "Booking created successfully",

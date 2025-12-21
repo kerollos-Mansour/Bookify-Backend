@@ -41,8 +41,8 @@ const createPaymentIntent = async (user, data) => {
     // Save intent ID in booking
   booking.paymentIntentId = paymentIntent.id;
   booking.paymentStatus = "unpaid";
-  await booking.save();
-
+  // await booking.save();
+await booking.save({ validateBeforeSave: false });
   return { clientSecret: paymentIntent.client_secret };
 };
 
