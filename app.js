@@ -20,10 +20,12 @@ app.post(
 app.use(express.json())
 app.use(cors(
   {
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173',
+    'http://localhost:3000'],
     credentials: true
   }
 ))
+
 app.use('/api/v1', v1Routes);
 
 // 404 handler
