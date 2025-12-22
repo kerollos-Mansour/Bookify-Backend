@@ -12,7 +12,7 @@ const emailTemplates = require('../../../shared/utils/emailTemplates.utils');
 // now we have 2 options to save users (reqister and create user ) reqister will be easy
 // for anyone who want to create an account unlike create_user will be from dashboard 
 exports.register = async (userData) => {
-  const { username, name, phoneNo, email, password } = userData;
+  const { username, name, phoneNo, email, password,isAdmin } = userData;
   console.log(userData)
   if (!username || !email || !password) {
     throw new ApiError("Username, email, and password are required", 400);
@@ -27,7 +27,7 @@ exports.register = async (userData) => {
       throw new ApiError("Username already exists", 400);
     }
   }
-  const user = await User.create({ username, name, phoneNo, email, password });
+  const user = await User.create({ username, name, phoneNo, email, password,isAdmin });
 
   const accessToken = generateToken(user);
   const refreshToken = generateRefreshToken(user);
@@ -71,8 +71,8 @@ exports.login = async (userData) => {
     throw new ApiError("Invalid email or password", 400)
   }
 
-  const accessToken = generateToken(user._id);
-  const refreshToken = generateRefreshToken(user._id);
+  const accessToken = generateToken(user);
+  const refreshToken = generateRefreshToken(user);
 
   user.refreshToken = refreshToken;
   await user.save();

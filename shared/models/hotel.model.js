@@ -40,6 +40,11 @@ const hotelSchema = new mongoose.Schema({
         default: 'hotel',
         trim: true
     },
+    featured: {
+        type: Boolean,
+        default: false,
+        index: true
+    },
     images: [{
         type: String,
         required:true
@@ -50,10 +55,10 @@ const hotelSchema = new mongoose.Schema({
         min: [0, 'TripAdvisor rating cannot be negative'],
         max: [5, 'TripAdvisor rating cannot exceed 5']
     },
-    hotelDetails:{
-        type:String,
-        trim:true,
-        default:''
+    hotelDetails: {
+        type: String,
+        trim: true,
+        default: ''
     },
     hotelRating: {
         type: Number,

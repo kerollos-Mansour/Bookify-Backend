@@ -70,6 +70,10 @@ const userSchema = new mongoose.Schema(
         accessibilityNeeds: {
             type: String,
         },
+        isAdmin: {
+        type: Boolean,
+        default: true
+    }
     },
     { timestamps: true }
 ); // automatically adds createdAt & updatedAt

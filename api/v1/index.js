@@ -10,6 +10,9 @@ const authRouter = require("./routes/auth.route");
 const roomRoutes = require("./routes/rooms.route");
 const couponRoutes = require("./routes/coupons.route");
 const amenityRoutes = require("./routes/amenities.route");
+const paymentRoutes = require('./routes/payment.route')
+const paymentMethodsRoutes = require('./routes/paymentMethod.route')
+const paymentStripeRoutes = require('./routes/paymentStripe.routes');
 const categoryRoutes = require("./routes/category.route");
 const imageRoutes = require("./routes/image.route");
 
@@ -24,5 +27,8 @@ router.use("/coupons", couponRoutes);
 router.use("/amenities", amenityRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/images", imageRoutes);
+router.use('/payments', paymentRoutes);
+router.use('/payment-methods', paymentMethodsRoutes);
+router.use('/payments/stripe', paymentStripeRoutes); 
 
 module.exports = router;

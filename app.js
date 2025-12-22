@@ -14,6 +14,12 @@ const globalErrorHandler = require('./shared/middlewares/ErrorHandeler.middlewar
 const PORT = process.env.PORT || 3000;
 
 const app = express();
+app.post(
+  "/api/v1/payments/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  require("./api/v1/controller/paymentStripe.controller").handleStripeWebhook
+);
+
 app.use(express.json())
 app.use(cors(
   {

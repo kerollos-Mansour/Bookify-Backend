@@ -1,63 +1,100 @@
+const Payment = require("../../../shared/models/payment.model");
 const Booking = require("../../../shared/models/booking.model");
+const PaymentMethod = require("../../../shared/models/paymentMethod.model");
 const AppError = require("../../../shared/utils/appError.utils");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-exports.createPaymentIntent = async (bookingData) => {
-    const { totalPrice, currency = "usd", bookingId, userId, hotelId, roomId } =
-        bookingData;
+/**
+ * Create a payment
+ */
+const createPayment = async (user, data) => {
+  const { bookingId, paymentMethodId, amount } = data;
 
-    if (!totalPrice || totalPrice <= 0) {
-        throw new AppError("Invalid amount", 400);
-    }
+  if (!bookingId || !paymentMethodId) {
+    throw new AppError("bookingId and paymentMethodId are required", 400);
+  }
 
-    const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(totalPrice * 100), // for cents
-        currency: currency.toLowerCase(),
-        metadata: {
-            bookingId: bookingId || "new",
-            userId: userId ? userId.toString() : "",
-            hotelId: hotelId ? hotelId.toString() : "",
-            roomId: roomId ? roomId.toString() : "",
-        },
-        automatic_payment_methods: {
-            enabled: true,
-        },
-    });
+  // 1) Check booking
+  const booking = await Booking.findById(bookingId);
+  if (!booking){
+    throw new AppError("Booking not found", 404);
+  } 
 
-    return {
-        clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id,
-    };
-};
+  if (booking.userId.toString() !== user._id.toString()) {
+    throw new AppError("Access denied", 403);
+  }
 
-exports.handlePaymentSuccess = async (paymentIntent) => {
-    const { bookingId } = paymentIntent.metadata;
+    // 2) Check payment method belongs to user
+  const method = await PaymentMethod.findById(paymentMethodId);
+  if (!method){
+    throw new AppError("Payment method not found", 404);
+  } 
 
-    if (!bookingId || bookingId === 'new') {
-        // This payment wasn't linked to an existing booking ID at creation time
-        // or it's a new booking flow. 
-        return null;
-    }
+  if (method.userId.toString() !== user._id.toString()) {
+    throw new AppError("This payment method does not belong to you", 403);
+  }
 
-    const booking = await Booking.findById(bookingId);
+   // 3) Amount
+  const payAmount = amount || booking.totalPrice;
 
-    if (!booking) {
-        throw new AppError("Booking not found", 404);
-    }
+    // 4) Create payment
+  const payment = new Payment({
+    bookingId,
+    userId: user._id,
+    paymentMethodId,
+    amount: payAmount,
+    status: "completed",
+    transactionId: "TX-" + Date.now()
+  });
 
-    booking.paymentStatus = "paid";
-    booking.paymentIntentId = paymentIntent.id;
+  await payment.save();
+
+  // 5) Update booking status
+  if (booking.status === "pending") {
     booking.status = "confirmed";
-    booking.updatedAt = new Date();
-
     await booking.save();
-    return booking;
+  }
+
+  return payment;
 };
 
-exports.constructWebhookEvent = (payload, signature) => {
-    return stripe.webhooks.constructEvent(
-        payload,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET
-    );
+/**
+ * Get payment by booking ID
+ */
+const getPaymentByBookingId = async (bookingId) => {
+  const payment = await Payment.findOne({ bookingId }).populate("paymentMethodId", "cardNumber bank cardHolderName");;
+  if (!payment){
+    throw new AppError("Payment not found", 404);
+  } 
+  return payment;
+};
+
+/**
+ * Update payment status (Admin)
+ */
+const updatePaymentStatus = async (user, paymentId, status) => {
+  if (!user.isAdmin){
+    throw new AppError("Access denied", 403);
+  } 
+
+  const validStatuses = ["pending", "completed", "failed", "refunded"];
+  if (!validStatuses.includes(status)){
+    throw new AppError("Invalid status", 400);
+  } 
+
+  const payment = await Payment.findByIdAndUpdate(paymentId, { status }, { new: true });
+  if (!payment){
+    throw new AppError("Payment not found", 404);
+  } 
+
+  if (status === "refunded") {
+    await Booking.findByIdAndUpdate(payment.bookingId, { status: "cancelled" });
+  }
+
+  return payment;
+};
+
+module.exports = {
+  createPayment,
+  getPaymentByBookingId,
+  updatePaymentStatus
 };

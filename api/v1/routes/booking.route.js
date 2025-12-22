@@ -1,21 +1,34 @@
 const express = require("express");
 const router = express.Router();
-const {
-    createBooking,
-    getBooking,
-} = require("../controller/booking.controller");
-const validate = require("../../../shared/middlewares/validate.middleware");
-const { protect } = require("../../../shared/middlewares/jwt.middle");
-const {
-    createBookingSchema,
-    bookingIdSchema,
-} = require("../validators/booking.validator");
+const bookingController = require("../controller/booking.controller");
+const authMiddleware = require("../../../shared/middlewares/auth.middleware");
 
-// Public routes
-router.get("/", getBooking);
-router.get("/:id", validate({ params: bookingIdSchema }), getBooking);
+// Protected routes
+router.post("/", authMiddleware.protect, bookingController.createBooking);
+router.get(
+  "/my-bookings",
+  authMiddleware.protect,
+  bookingController.getUserBookings
+);
+router.get("/:id", authMiddleware.protect, bookingController.getBookingById);
+router.put(
+  "/:id/cancel",
+  authMiddleware.protect,
+  bookingController.cancelBooking
+);
 
-// Protected routes - User must be authenticated
-router.post("/", protect, validate(createBookingSchema), createBooking);
+// Admin routes
+router.get(
+  "/",
+  authMiddleware.protect,
+  authMiddleware.restrictToAdmin,
+  bookingController.getAllBookings
+);
+router.put(
+  "/:id/status",
+  authMiddleware.protect,
+  authMiddleware.restrictToAdmin,
+  bookingController.updateBookingStatus
+);
 
 module.exports = router;

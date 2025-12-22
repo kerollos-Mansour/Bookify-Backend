@@ -89,6 +89,11 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}) => {
     ];
   }
 
+  if (filters.featured !== undefined) {
+    query.featured = filters.featured === "true";
+  }
+
+
   if (filters.city) {
     query["location.city"] = { $regex: filters.city, $options: "i" };
   }
