@@ -20,12 +20,27 @@ exports.createRoom = async (data) => {
         throw new AppError("Hotel ID is not valid", 400);
     }
 
-    // Validate price object
-    if (!price.original) {
-        throw new AppError("Price object must contain original price", 400);
+    let parsedPrice;
+    if (typeof price === 'string') {
+        try {
+            parsedPrice = JSON.parse(price.trim());
+        } catch (err) {
+            throw new AppError("Invalid price format: must be valid JSON", 400);
+        }
+    } else {
+        parsedPrice = price;
     }
 
-    const newRoom = await Rooms.create(data);
+    if (!parsedPrice.original || typeof parsedPrice.original !== 'number' || parsedPrice.original <= 0) {
+        throw new AppError("Price must have a valid positive 'original' number", 400);
+    }
+
+    const roomData = {
+        ...data,
+        price: parsedPrice,
+    };
+
+    const newRoom = await Rooms.create(roomData);
     await newRoom.populate("hotelId");
     await newRoom.populate("amenities");
 

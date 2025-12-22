@@ -84,8 +84,8 @@ const roomSchema = new Schema(
             default: {},
         },
         price: {
-            type: priceSchema,
-            required: true,
+            type: priceSchema
+            // required: true,
         },
         quantity: {
             type: Number,

@@ -16,6 +16,7 @@ const {
     roomIdSchema,
     roomQuerySchema,
 } = require("../validators/room.validator");
+const upload = require("../../../shared/config/multer.config");
 
 // Get all rooms for a specific hotel
 router.get(
@@ -38,6 +39,8 @@ router.post(
     protect,
     allowTo("admin"),
     validate(createRoomSchema),
+    upload.array("images", 10),
+
     createRoom
 );
 router.put(
