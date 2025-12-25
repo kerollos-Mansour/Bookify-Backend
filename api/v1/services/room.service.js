@@ -21,6 +21,10 @@ exports.createRoom = async (data) => {
     }
 
     let parsedPrice;
+    if (!price) {
+        throw new AppError("Price is required", 400);
+    }
+
     if (typeof price === 'string') {
         try {
             parsedPrice = JSON.parse(price.trim());

@@ -3,6 +3,8 @@ const Room = require("../../../shared/models/rooms.model");
 const Coupon = require("../../../shared/models/coupons.model");
 const AppError = require("../../../shared/utils/appError.utils");
 const emailTemplates = require('../../../shared/utils/emailTemplates.utils');
+const sendEmail = require('../../../shared/utils/email.util');
+const User = require("../../../shared/models/user.model");
 
 /**
  * Booking Service
@@ -69,10 +71,15 @@ const createBooking = async (bookingData) => {
     throw new AppError("Booking must be for at least one night", 400);
   }
 
-  const pricePerNight = room.price.original;
-  let subTotal = pricePerNight * nights;
-  let totalPrice = subTotal;
+  const pricePerNight = (room.price.discounted && room.price.discounted > 0 && room.price.discounted < room.price.original)
+    ? room.price.discounted
+    : room.price.original;
 
+  let subTotal = pricePerNight * nights;
+
+  const fees = subTotal * 0.10; // 10% service fee
+  let totalPrice = subTotal + fees;
+  
   // Apply Coupon if provided
   let appliedCoupon = null;
   if (couponCode) {
@@ -126,6 +133,7 @@ const createBooking = async (bookingData) => {
     pricePerNight,
     totalPrice,
     subTotal,
+    fees,
     bookingNumber: bookingNumber,
     currency,
     paymentIntentId: paymentIntentId || "pending_payment",
@@ -137,11 +145,12 @@ const createBooking = async (bookingData) => {
 
   await booking.save();
 
+  const user = await User.findById(userId);
   // email
-  emailTemplates.sendEmail({
-    email,
-    subject: "Booking Confirmation",
-    template: emailTemplates.bookingConfirmationTemplate(data.name, bookingNumber)
+  sendEmail({
+    email: user.email,
+    subject: "Welcome to Bookify",
+    html: emailTemplates.welcomeTemplate(user.name)
   })
   return {
     booking,

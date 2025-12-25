@@ -2,6 +2,7 @@ const User = require('../../../shared/models/user.model');
 const catchAsync = require('../../../shared/utils/catchError.utils');
 const AppError = require('../../../shared/utils/appError.utils')
 const emailTemplates = require('../../../shared/utils/emailTemplates.utils');
+const sendEmail = require('../../../shared/utils/email.util');
 
 const sanitizeUser = (user) => { // to remove pass from response
     const { password, ...safeUser } = user.toObject();
