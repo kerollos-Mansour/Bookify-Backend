@@ -23,12 +23,11 @@ app.post(
 app.use(express.json())
 app.use(cors(
   {
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173',
+    'http://localhost:3000'],
     credentials: true
   }
 ))
-// app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
-// app.use("/uploads", express.static(path.join(__dirname, "uplods")));
 
 app.use('/api/v1', v1Routes);
 
