@@ -15,6 +15,8 @@ const paymentMethodsRoutes = require('./routes/paymentMethod.route')
 const paymentStripeRoutes = require('./routes/paymentStripe.routes');
 const categoryRoutes = require("./routes/category.route");
 const imageRoutes = require("./routes/image.route");
+const financialsRoutes = require("./routes/financials.routes");
+
 
 // Mount route modules
 router.use("/destinations", destinationRoutes);
@@ -27,8 +29,9 @@ router.use("/coupons", couponRoutes);
 router.use("/amenities", amenityRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/images", imageRoutes);
+router.use('/payments/stripe', paymentStripeRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/payment-methods', paymentMethodsRoutes);
-router.use('/payments/stripe', paymentStripeRoutes); 
+router.use('/financials', financialsRoutes);
 
 module.exports = router;

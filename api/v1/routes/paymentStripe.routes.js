@@ -9,10 +9,10 @@ router.post(
   paymentController.createStripePaymentIntent
 );
 
-router.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  paymentController.handleStripeWebhook
-);
+// router.post(
+//   "/webhook",
+//   express.raw({ type: "application/json" }),
+//   paymentController.handleStripeWebhook
+// );
 
 module.exports = router;
