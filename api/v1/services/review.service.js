@@ -1,16 +1,18 @@
-const Reviews = require("../../../shared/models/review.model");
+const Review = require("../../../shared/models/review.model");
 const mongoose = require("mongoose");
 const AppError = require("../../../shared/utils/appError.utils");
 
-
-//  * Create a new review
+// Create a new review (defaults to pending)
 const createReview = async (data) => {
-  const review = new Review(data);
+  const review = new Review({
+    ...data,
+    status: "pending"
+  });
   await review.save();
   return review;
 };
 
-//  * Get all reviews with filtering, pagination, and sorting
+// Get all reviews with filtering, pagination, and sorting
 const getAllReviews = async (filters = {}, pagination = {}, sorting = {}) => {
   const page = Number(pagination.page) || 1;
   const limit = Number(pagination.limit) || 10;
@@ -27,14 +29,16 @@ const getAllReviews = async (filters = {}, pagination = {}, sorting = {}) => {
     query.userid = filters.userid;
   }
 
+  if (filters.status) {
+    query.status = filters.status;
+  }
+
   if (filters.minRating) {
     query.rating = { ...query.rating, $gte: Number(filters.minRating) };
   }
-
   if (filters.maxRating) {
     query.rating = { ...query.rating, $lte: Number(filters.maxRating) };
   }
-
   if (filters.search) {
     query.comment = { $regex: filters.search, $options: "i" };
   }
@@ -52,7 +56,12 @@ const getAllReviews = async (filters = {}, pagination = {}, sorting = {}) => {
   }
 
   // Execute queries
-  const reviews = await Review.find(query).sort(sort).skip(skip).limit(limit);
+  const reviews = await Review.find(query)
+    .populate('userid', 'username email')
+    .populate('hotelid', 'name') 
+    .sort(sort)
+    .skip(skip)
+    .limit(limit);
   const total = await Review.countDocuments(query);
 
   return {
@@ -71,13 +80,8 @@ const getReviewById = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new AppError("Invalid review ID", 400);
   }
-
   const review = await Review.findById(id);
-
-  if (!review) {
-    throw new AppError("Review not found", 404);
-  }
-
+  if (!review) throw new AppError("Review not found", 404);
   return review;
 };
 
@@ -86,17 +90,21 @@ const updateReview = async (id, data) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new AppError("Invalid review ID", 400);
   }
-
   const updatedReview = await Review.findByIdAndUpdate(id, data, {
     new: true,
     runValidators: true,
   });
-
-  if (!updatedReview) {
-    throw new AppError("Review not found", 404);
-  }
-
+  if (!updatedReview) throw new AppError("Review not found", 404);
   return updatedReview;
+};
+
+// New moderation methods
+const approveReview = async (id) => {
+  return await updateReview(id, { status: "approved" });
+};
+
+const rejectReview = async (id) => {
+  return await updateReview(id, { status: "rejected" });
 };
 
 //  * Delete a review by ID
@@ -104,13 +112,8 @@ const deleteReview = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new AppError("Invalid review ID", 400);
   }
-
   const deletedReview = await Review.findByIdAndDelete(id);
-
-  if (!deletedReview) {
-    throw new AppError("Review not found", 404);
-  }
-
+  if (!deletedReview) throw new AppError("Review not found", 404);
   return deletedReview;
 };
 
@@ -119,5 +122,7 @@ module.exports = {
   getAllReviews,
   getReviewById,
   updateReview,
+  approveReview,
+  rejectReview,
   deleteReview,
 };

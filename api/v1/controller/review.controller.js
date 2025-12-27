@@ -15,17 +15,17 @@ const createReview = catchAsync(async (req, res, next) => {
 
 
 const getAllReviews = catchAsync(async (req, res, next) => {
-  const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
-  const pagination = req.query.pagination ? JSON.parse(req.query.pagination) : {};
-  const sorting = req.query.sorting ? JSON.parse(req.query.sorting) : {};
+  const filters = req.query.filters ? JSON.parse(req.query.filters) : (req.query.status ? { status: req.query.status } : {});
+  const pagination = req.query.pagination ? JSON.parse(req.query.pagination) : { page: req.query.page, limit: req.query.limit };
+  const sorting = req.query.sorting ? JSON.parse(req.query.sorting) : { sort: req.query.sort };
 
   const result = await reviewService.getAllReviews(filters, pagination, sorting);
 
   res.status(200).json({
-    status: "success",
-    data: result.reviews,
-    pagination: result.pagination,
-  });
+      status: httpStatusText.SUCCESS,
+      data: result.reviews,
+      pagination: result.pagination,
+    });
 });
 
 
@@ -48,6 +48,23 @@ const updateReview = catchAsync(async (req, res, next) => {
   });
 });
 
+
+const approveReview = catchAsync(async (req, res, next) => {
+  const review = await reviewService.approveReview(req.params.id);
+  res.status(200).json({
+    status: httpStatusText.SUCCESS,
+    data: { review }
+  });
+});
+
+const rejectReview = catchAsync(async (req, res, next) => {
+  const review = await reviewService.rejectReview(req.params.id);
+  res.status(200).json({
+    status: httpStatusText.SUCCESS,
+    data: { review }
+  });
+});
+
 const deleteReview = catchAsync(async (req, res, next) => {
   await reviewService.deleteReview(req.params.id);
 
@@ -56,11 +73,13 @@ const deleteReview = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
 module.exports = {
   createReview,
   getAllReviews,
-  deleteReview,
+  getReviewById,
   updateReview,
-  getReviewById
-
+  approveReview,
+  rejectReview,
+  deleteReview,
 };

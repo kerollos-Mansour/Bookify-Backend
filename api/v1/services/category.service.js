@@ -13,8 +13,10 @@ const createCategory = async (data) => {
     return category;
 };
 
-const getAllCategories = async () => {
-    const categories = await Category.find({ isActive: true }).sort({ displayOrder: 1, name: 1 });
+const getAllCategories = async (query = {}) => {
+    // If includeInactive is "true", fetch all. Otherwise, fetch only active.
+    const filter = query.includeInactive === 'true' ? {} : { isActive: true };
+    const categories = await Category.find(filter).sort({ displayOrder: 1, name: 1 });
     return categories;
 };
 
