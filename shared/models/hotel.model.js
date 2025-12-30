@@ -47,7 +47,7 @@ const hotelSchema = new mongoose.Schema({
     },
     images: [{
         type: String,
-        required:true
+        required: true
     }],
     tripAdvisorRating: {
         type: Number,
@@ -83,6 +83,11 @@ const hotelSchema = new mongoose.Schema({
         min: [0, 'High rate cannot be negative']
     },
     location: locationSchema,
+    ownerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        index: true,
+    },
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt
 });
@@ -93,5 +98,6 @@ hotelSchema.index({ "location.countryCode": 1 });
 hotelSchema.index({ hotelRating: -1 });
 hotelSchema.index({ lowRate: 1 });
 hotelSchema.index({ propertyCategory: 1 });
+hotelSchema.index({ ownerId: 1 });
 
 module.exports = mongoose.model("Hotel", hotelSchema);

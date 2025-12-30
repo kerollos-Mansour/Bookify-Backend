@@ -9,8 +9,6 @@ const crypto = require("crypto");
 const sendEmail = require('../../../shared/utils/email.util');
 const emailTemplates = require('../../../shared/utils/emailTemplates.utils');
 
-// now we have 2 options to save users (reqister and create user ) reqister will be easy
-// for anyone who want to create an account unlike create_user will be from dashboard 
 exports.register = async (userData) => {
   const { username, name, phoneNo, email, password,isAdmin } = userData;
   console.log(userData)

@@ -13,10 +13,8 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
-// ✅ Create HTTP server
 const server = http.createServer(app);
 
-// ✅ Init socket.io
 initializeSocketIO(server);
 
 app.post(
@@ -40,10 +38,9 @@ app.use((req, res, next) => {
 
 app.use(globalErrorHandler);
 
-// DB Connection
+// DB connection
 connectToMongoDB();
 
-// ✅ IMPORTANT: listen on SERVER, not app
 server.listen(PORT, () => {
-  console.log(`🚀 Server + Socket.IO running on port ${PORT}`);
+  console.log(`Server + Socket.IO running on port ${PORT}`);
 });

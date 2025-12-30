@@ -48,3 +48,61 @@ exports.restrictToAdmin = (req, res, next) => {
   }
   next();
 };
+
+
+/**
+ * Restrict to specific roles (flexible)
+ * Usage: restrictTo('admin', 'vendor')
+ */
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do not have permission to perform this action", 403)
+      );
+    }
+    next();
+  };
+};
+
+/**
+ * Ensure vendors can only access their own resources
+ * Requires hotelId or ownerId in params/body
+ */
+exports.restrictToVendorOwnResources = async (req, res, next) => {
+  try {
+    // Admins can access all resources
+    if (req.user.role === 'admin' || req.user.isAdmin) {
+      return next();
+    }
+
+    // For vendors, check ownership
+    if (req.user.role === 'vendor') {
+      const Hotel = require('../models/hotel.model');
+
+      // Get hotelId from params or body
+      const hotelId = req.params.id || req.params.hotelId || req.body.hotelId;
+
+      if (!hotelId) {
+        return next(new AppError("Hotel ID is required", 400));
+      }
+
+      // Check if hotel belongs to vendor
+      const hotel = await Hotel.findById(hotelId);
+
+      if (!hotel) {
+        return next(new AppError("Hotel not found", 404));
+      }
+
+      if (hotel.ownerId && hotel.ownerId.toString() !== req.user._id.toString()) {
+        return next(
+          new AppError("You do not have permission to access this resource", 403)
+        );
+      }
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};

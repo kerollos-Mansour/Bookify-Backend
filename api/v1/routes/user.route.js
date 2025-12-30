@@ -8,7 +8,7 @@ const {
     updateUser,
     changeUserRole,
 } = require("../controller/user.controller");
-const { protect, allowTo } = require("../../../shared/middlewares/jwt.middle");
+const { protect, allowTo } = require("../../../shared/middlewares/jwt.middleware");
 const validate = require("../../../shared/middlewares/validate.middleware");
 const {
     createUserSchema,

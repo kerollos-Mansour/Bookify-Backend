@@ -6,7 +6,11 @@ const AppError = require("../../../shared/utils/appError.utils");
 
 //  * Create a new hotel
 
-const createHotel = async (data) => {
+const createHotel = async (data, user) => {
+  // If vendor, set ownerId to current user
+  if (user && user.role === 'vendor') {
+    data.ownerId = user._id;
+  }
   const hotel = new Hotel(data);
   await hotel.save();
   return hotel;
@@ -15,13 +19,18 @@ const createHotel = async (data) => {
 // Get all hotels with filtering, pagination, and sorting
 
 // Get all hotels with filtering, pagination, and sorting
-const getAllHotels = async (filters = {}, pagination = {}, sorting = {}) => {
+const getAllHotels = async (filters = {}, pagination = {}, sorting = {}, user = null) => {
   const page = Number(pagination.page) || 1;
   const limit = Number(pagination.limit) || 10;
   const skip = (page - 1) * limit;
 
   // Build filter query
   const query = {};
+
+  // Filter by vendor ownership if user is vendor
+  if (user && user.role === 'vendor') {
+    query.ownerId = user._id;
+  }
 
   // 1. Availability Pre-Check (Critical for Pagination)
   // If dates are provided, we must first find which hotels have ANY availability.
@@ -168,9 +177,21 @@ const getHotelById = async (id) => {
 
 //  * Update a hotel by ID
 
-const updateHotel = async (id, data) => {
+const updateHotel = async (id, data, user) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new AppError("Invalid hotel ID", 400);
+  }
+
+  // Check ownership for vendors
+  const hotel = await Hotel.findById(id);
+  if (!hotel) {
+    throw new AppError("Hotel not found", 404);
+  }
+
+  if (user && user.role === 'vendor') {
+    if (!hotel.ownerId || hotel.ownerId.toString() !== user._id.toString()) {
+      throw new AppError("You do not have permission to update this hotel", 403);
+    }
   }
 
   const updatedHotel = await Hotel.findByIdAndUpdate(id, data, {
@@ -178,25 +199,28 @@ const updateHotel = async (id, data) => {
     runValidators: true,
   });
 
-  if (!updatedHotel) {
-    throw new AppError("Hotel not found", 404);
-  }
-
   return updatedHotel;
 };
 
 //  * Delete a hotel by ID
-const deleteHotel = async (id) => {
+const deleteHotel = async (id, user) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new AppError("Invalid hotel ID", 400);
   }
 
-  const deletedHotel = await Hotel.findByIdAndDelete(id);
-
-  if (!deletedHotel) {
+  // Check ownership for vendors
+  const hotel = await Hotel.findById(id);
+  if (!hotel) {
     throw new AppError("Hotel not found", 404);
   }
 
+  if (user && user.role === 'vendor') {
+    if (!hotel.ownerId || hotel.ownerId.toString() !== user._id.toString()) {
+      throw new AppError("You do not have permission to delete this hotel", 403);
+    }
+  }
+
+  const deletedHotel = await Hotel.findByIdAndDelete(id);
   return deletedHotel;
 };
 

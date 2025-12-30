@@ -113,6 +113,11 @@ exports.updateHotelSchema = Joi.object({
         "number.base": "Confidence rating must be a valid number.",
         "number.min": "Confidence rating cannot be negative.",
     }),
+    ownerId: Joi.string().alphanum().length(24).optional().messages({
+        "string.alphanum":
+            "Vendor ID must contain only alphanumeric characters.",
+        "string.length": "Vendor ID must be 24 characters long.",
+    }),
     lowRate: Joi.number().min(0).optional().messages({
         "number.base": "Low rate must be a valid number.",
         "number.min": "Low rate cannot be negative.",

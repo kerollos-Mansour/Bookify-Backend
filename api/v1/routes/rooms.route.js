@@ -9,7 +9,7 @@ const {
     deleteRoom,
 } = require("../controller/room.controller");
 const validate = require("../../../shared/middlewares/validate.middleware");
-const { protect, allowTo } = require("../../../shared/middlewares/jwt.middle");
+const { protect, allowTo } = require("../../../shared/middlewares/jwt.middleware");
 const {
     createRoomSchema,
     updateRoomSchema,

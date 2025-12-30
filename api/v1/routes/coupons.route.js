@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const couponsController = require("../../v1/controller/coupons.controller");
 const validate = require("../../../shared/middlewares/validate.middleware");
-const { protect } = require("../../../shared/middlewares/jwt.middle");
+const { protect } = require("../../../shared/middlewares/jwt.middleware");
 const {
     createCouponsSchema,
     updateCouponsSchema,

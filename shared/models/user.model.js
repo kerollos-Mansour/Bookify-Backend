@@ -26,7 +26,21 @@ const userSchema = new mongoose.Schema(
         role: {
             type: String,
             default: "user",
-            enum: ["user", "admin"],
+            enum: ["user", "admin", "vendor"],
+        },
+
+        vendorInfo: {
+            businessName: {
+                type: String,
+                maxlength: 200,
+            },
+            approved: {
+                type: Boolean,
+                default: false,
+            },
+            approvedAt: {
+                type: Date,
+            },
         },
 
         name: {
@@ -71,9 +85,9 @@ const userSchema = new mongoose.Schema(
             type: String,
         },
         isAdmin: {
-        type: Boolean,
-        default: true
-    }
+            type: Boolean,
+            default: true
+        }
     },
     { timestamps: true }
 ); // automatically adds createdAt & updatedAt

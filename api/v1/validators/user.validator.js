@@ -18,11 +18,17 @@ exports.createUserSchema = Joi.object({
         "string.max": "Password cannot exceed 255 characters.",
         "any.required": "Password is required.",
     }),
-    role: Joi.string().valid("user", "admin").optional().default("user"),
+    role: Joi.string().valid("user", "admin","vendor").optional().default("user"),
     name: Joi.string().max(100).optional().messages({
         "string.max": "Name cannot exceed 100 characters.",
     }),
-
+    vendorInfo: Joi.object({
+        businessName: Joi.string().max(200).optional().messages({
+            "string.max": "Business name cannot exceed 200 characters.",
+        }),
+        approved: Joi.boolean().optional().default(false),
+        approvedAt: Joi.date().optional(),
+    }),
     phoneNo: Joi.string().max(20).optional().messages({
         "string.max": "Phone number cannot exceed 20 characters.",
     }),

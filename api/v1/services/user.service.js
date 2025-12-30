@@ -20,6 +20,8 @@ exports.createUser = async (data) => {
         dateOfBirth,
         gender,
         bio,
+        role,
+        vendorInfo,
         address,
         emergencyContact,
         accessibilityNeeds
@@ -38,6 +40,8 @@ exports.createUser = async (data) => {
         dateOfBirth,
         gender,
         bio,
+        role,
+        vendorInfo,
         address,
         emergencyContact,
         accessibilityNeeds

@@ -8,7 +8,7 @@
 //     updateDestination,
 // } = require("../controller/destinations.controller");
 // const validate = require("../../../shared/middlewares/validate.middleware");
-// const { protect, allowTo } = require("../../../shared/middlewares/jwt.middle");
+// const { protect, allowTo } = require("../../../shared/middlewares/jwt.middlewareware");
 // const {
 //     createDestinationSchema,
 //     updateDestinationSchema,

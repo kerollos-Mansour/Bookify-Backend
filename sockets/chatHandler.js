@@ -8,7 +8,7 @@ const createRoom = (user1, user2) => {
 exports.chatHandler = (io, socket) => {
 
   // Join chat
-  socket.on("chat:join", ({ receiverId }) => {
+  socket.on("chat:join", async ({ receiverId }) => {
     if (!receiverId) return;
 
     const room = createRoom(socket.userId, receiverId);
@@ -16,9 +16,21 @@ exports.chatHandler = (io, socket) => {
 
     console.log(`👤 ${socket.userId} joined room ${room}`);
 
+    // ✅ Fetch and send chat history
+    try {
+      const messages = await Message.find({ room })
+        .sort({ createdAt: 1 })
+        .limit(50)
+        .lean();
+
+      socket.emit("chat:history", messages);
+    } catch (error) {
+      console.error("Error fetching chat history:", error);
+      socket.emit("chat:history", []);
+    }
+
     socket.emit("chat:joined", { room });
   });
-
   // Send message
   socket.on("chat:message", async ({ receiverId, content }) => {
     if (!receiverId || !content) return;
@@ -38,7 +50,7 @@ exports.chatHandler = (io, socket) => {
       senderId: socket.userId,
       receiverId,
       content,
-      time: newMessage.createdAt,
+      createdAt: newMessage.createdAt, 
     };
 
     io.to(room).emit("chat:message", message);

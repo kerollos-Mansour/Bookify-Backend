@@ -7,7 +7,7 @@ const {
     deleteHotel,
 } = require("../controller/hotel.controller");
 const validate = require("../../../shared/middlewares/validate.middleware");
-const { protect, allowTo } = require("../../../shared/middlewares/jwt.middle");
+const { protect, allowTo } = require("../../../shared/middlewares/jwt.middleware");
 const {
     createHotelSchema,
     updateHotelSchema,
@@ -18,29 +18,29 @@ const upload = require("../../../shared/config/multer.config");
 
 const router = express.Router();
 
-// Public routes
+// Public routes (vendors will see filtered results in service layer)
 router.get("/", validate({ query: hotelQuerySchema }), getHotels);
 router.get("/:id", validate({ params: hotelIdSchema }), getHotelById);
 
-// Protected routes - Admin only
+// Protected routes - Admin and Vendor
 router.post(
     "/",
     protect,
-    allowTo("admin"),
+    allowTo("admin", "vendor"),
     upload.array("images", 10),
     createHotel
 );
 router.put(
     "/:id",
     protect,
-    allowTo("admin"),
+    allowTo("admin", "vendor"),
     validate({ params: hotelIdSchema, body: updateHotelSchema }),
     updateHotel
 );
 router.delete(
     "/:id",
     protect,
-    allowTo("admin"),
+    allowTo("admin", "vendor"),
     validate({ params: hotelIdSchema }),
     deleteHotel
 );
