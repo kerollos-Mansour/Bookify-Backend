@@ -8,25 +8,32 @@ const httpStatusText = require("../../../shared/utils/appError.utils");
  * Protected route: user must be logged in
  */
 exports.createBooking = catchAsync(async (req, res) => {
-  const booking = await bookingService.createBooking({
-    ...req.body,
-    userId: req.user._id
-  });
-  res.status(201).json({
-    status: httpStatusText.SUCCESS,
-    message: "Booking created successfully",
-    data: booking,
-  });
+    const booking = await bookingService.createBooking({
+        ...req.body,
+        userId: req.user._id,
+    });
+    res.status(201).json({
+        status: httpStatusText.SUCCESS,
+        message: "Booking created successfully",
+        data: booking,
+    });
 });
 
 /**
  * Get all bookings (Admin only)
  * GET /api/v1/bookings
  * Protected route: admin only
+ * Query params: status, search, searchBy startDate
  */
 exports.getAllBookings = catchAsync(async (req, res) => {
-  const bookings = await bookingService.getAllBookings(req.user);
-  res.status(200).json({ status: httpStatusText.SUCCESS, data: bookings });
+    const { status, search, startDate, searchBy } = req.query;
+    const bookings = await bookingService.getAllBookings({
+        status: status || undefined,
+        search: search || undefined,
+        startDate: startDate || undefined,
+        searchBy: searchBy || undefined,
+    });
+    res.status(200).json({ status: httpStatusText.SUCCESS, data: bookings });
 });
 
 /**
@@ -35,8 +42,8 @@ exports.getAllBookings = catchAsync(async (req, res) => {
  * Protected route: user must be logged in
  */
 exports.getUserBookings = catchAsync(async (req, res) => {
-  const bookings = await bookingService.getUserBookings(req.user);
-  res.status(200).json({ status: httpStatusText.SUCCESS, data: bookings });
+    const bookings = await bookingService.getUserBookings(req.user);
+    res.status(200).json({ status: httpStatusText.SUCCESS, data: bookings });
 });
 
 /**
@@ -46,8 +53,8 @@ exports.getUserBookings = catchAsync(async (req, res) => {
  * Admin can access any booking
  */
 exports.getBookingById = catchAsync(async (req, res) => {
-  const booking = await bookingService.getBookingById(req.user, req.params.id);
-  res.status(200).json({ status: httpStatusText.SUCCESS, data: booking });
+    const booking = await bookingService.getBookingById(req.params.id);
+    res.status(200).json({ status: httpStatusText.SUCCESS, data: booking });
 });
 
 /**
@@ -56,12 +63,24 @@ exports.getBookingById = catchAsync(async (req, res) => {
  * Protected route: admin only
  */
 exports.updateBookingStatus = catchAsync(async (req, res) => {
-  const booking = await bookingService.updateBookingStatus(
-    req.user,
-    req.params.id,
-    req.body.status
-  );
-  res.status(200).json({ status: httpStatusText.SUCCESS, data: booking });
+    const { status } = req.body;
+
+    if (!status) {
+        return res.status(400).json({
+            status: httpStatusText.FAIL,
+            message: "Status is required",
+        });
+    }
+
+    const booking = await bookingService.updateBookingStatus(
+        req.params.id,
+        status
+    );
+    res.status(200).json({
+        status: httpStatusText.SUCCESS,
+        message: "Booking status updated successfully",
+        data: booking,
+    });
 });
 
 /**
@@ -71,12 +90,31 @@ exports.updateBookingStatus = catchAsync(async (req, res) => {
  * Users can cancel only their own bookings
  */
 exports.cancelBooking = catchAsync(async (req, res) => {
-  const booking = await bookingService.cancelBooking(req.user, req.params.id);
-  res
-    .status(200)
-    .json({
-      status: httpStatusText.SUCCESS,
-      message: "Booking cancelled",
-      data: booking,
+    const booking = await bookingService.cancelBooking(req.user, req.params.id);
+    res.status(200).json({
+        status: httpStatusText.SUCCESS,
+        message: "Booking cancelled",
+        data: booking,
+    });
+});
+
+/**
+ * Update booking details
+ * PUT /api/v1/bookings/:id
+ * Protected route: user must be logged in
+ * Users can update only their own bookings
+ * Admin can update any booking
+ */
+exports.updateBooking = catchAsync(async (req, res) => {
+    const booking = await bookingService.updateBooking(
+        req.params.id,
+        req.body,
+        req.user._id,
+        req.user.role === "admin"
+    );
+    res.status(200).json({
+        status: httpStatusText.SUCCESS,
+        message: "Booking updated successfully",
+        data: booking,
     });
 });
