@@ -76,6 +76,12 @@ exports.createHotelSchema = Joi.object({
     hotelDetails: Joi.string().trim().optional().messages({
         "string.base": "Hotel details must be a valid text.",
     }),
+    featured: Joi.boolean().optional().messages({
+        "boolean.base": "Featured must be true or false",
+    }),
+    hotelDetails: Joi.string().trim().optional().messages({
+        "string.base": "Hotel details must be a valid text.",
+    }),
 });
 
 // Update Hotel Schema
@@ -125,6 +131,15 @@ exports.updateHotelSchema = Joi.object({
     highRate: Joi.number().min(0).optional().messages({
         "number.base": "High rate must be a valid number.",
         "number.min": "High rate cannot be negative.",
+    }),
+    location: locationSchema.optional().messages({
+        "object.base": "Location must be a valid object.",
+    }),
+    featured: Joi.boolean().optional().messages({
+        "boolean.base": "Featured must be true or false",
+    }),
+    hotelDetails: Joi.string().trim().allow('', null).optional().messages({
+        "string.base": "Hotel details must be a valid text.",
     }),
     location: locationSchema.optional().messages({
         "object.base": "Location must be a valid object.",

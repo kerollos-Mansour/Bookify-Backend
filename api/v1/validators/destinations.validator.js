@@ -12,7 +12,7 @@ exports.createDestinationSchema = Joi.object({
         "string.base": "Description must be a valid text.",
     }),
 
-    image: Joi.string().uri().optional().messages({
+    image: Joi.string().uri().allow(null, '').optional().messages({
         "string.uri": "Image must be a valid URL.",
     }),
 
@@ -55,7 +55,7 @@ exports.updateDestinationSchema = Joi.object({
         "string.base": "Description must be a valid text.",
     }),
 
-    image: Joi.string().uri().optional().messages({
+    image: Joi.string().uri().allow(null, '').optional().messages({
         "string.uri": "Image must be a valid URL.",
     }),
 
