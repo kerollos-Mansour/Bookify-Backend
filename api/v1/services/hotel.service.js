@@ -143,10 +143,32 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}, user = 
 
   // 4. Execution
   const total = await Hotel.countDocuments(query);
-  const hotels = await Hotel.find(query)
+  let hotels = await Hotel.find(query)
     .sort(sort)
     .skip(skip)
     .limit(limit);
+
+  // Aggregate amenities for each hotel
+  hotels = await Promise.all(
+    hotels.map(async (hotelDoc) => {
+      const hotel = hotelDoc.toObject();
+      const rooms = await Room.find({ hotelId: hotel._id }).populate("amenities");
+
+      const amenitiesMap = new Map();
+      rooms.forEach((room) => {
+        if (room.amenities && Array.isArray(room.amenities)) {
+          room.amenities.forEach((amenity) => {
+            if (amenity && amenity._id) {
+              amenitiesMap.set(amenity._id.toString(), amenity);
+            }
+          });
+        }
+      });
+
+      hotel.amenities = Array.from(amenitiesMap.values());
+      return hotel;
+    })
+  );
 
   return {
     hotels,
@@ -166,11 +188,31 @@ const getHotelById = async (id) => {
     throw new AppError("Invalid hotel ID", 400);
   }
 
-  const hotel = await Hotel.findById(id);
+  let hotel = await Hotel.findById(id);
 
   if (!hotel) {
     throw new AppError("Hotel not found", 404);
   }
+
+  // Find all rooms for this hotel and populate amenities
+  const rooms = await Room.find({ hotelId: id }).populate("amenities");
+
+  // Aggregate unique amenities from all rooms
+  const amenitiesMap = new Map();
+  rooms.forEach((room) => {
+    if (room.amenities && Array.isArray(room.amenities)) {
+      room.amenities.forEach((amenity) => {
+        // Ensure amenity exists (it might be null if the reference is broken)
+        if (amenity && amenity._id) {
+          amenitiesMap.set(amenity._id.toString(), amenity);
+        }
+      });
+    }
+  });
+
+  // Convert hotel to object to attach amenities
+  hotel = hotel.toObject();
+  hotel.amenities = Array.from(amenitiesMap.values());
 
   return hotel;
 };
