@@ -62,12 +62,25 @@ exports.getAllUsers = async (data) => {
     const skip = (page - 1) * limit;
 
     const totalUsers = await User.countDocuments(); // total users in DB
-    const users = await User.find().select('-password').skip(skip).limit(limit);
+
+    // Add filtering
+    const filter = {};
+    if (data.role) {
+        filter.role = data.role;
+    }
+
+    // Determine total count based on filter
+    const totalFilteredUsers = Object.keys(filter).length > 0
+        ? await User.countDocuments(filter)
+        : totalUsers;
+
+    const users = await User.find(filter).select('-password').skip(skip).limit(limit);
     return {
         users,
         pagination: {
-            page, limit, skip, totalUsers,
-            totalPages: Math.ceil(totalUsers / limit)
+            page, limit, skip,
+            totalUsers: totalFilteredUsers,
+            totalPages: Math.ceil(totalFilteredUsers / limit)
         }
     };
 }

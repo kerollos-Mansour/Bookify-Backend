@@ -1,6 +1,7 @@
 const reviewService = require("../services/review.service");
 const catchAsync = require("../../../shared/utils/catchError.utils");
 const httpStatusText = require("../../../shared/utils/appError.utils");
+const { sendNotificationToUser } = require("../../../sockets");
 
 
 
@@ -22,10 +23,10 @@ const getAllReviews = catchAsync(async (req, res, next) => {
   const result = await reviewService.getAllReviews(filters, pagination, sorting);
 
   res.status(200).json({
-      status: httpStatusText.SUCCESS,
-      data: result.reviews,
-      pagination: result.pagination,
-    });
+    status: httpStatusText.SUCCESS,
+    data: result.reviews,
+    pagination: result.pagination,
+  });
 });
 
 
@@ -51,6 +52,16 @@ const updateReview = catchAsync(async (req, res, next) => {
 
 const approveReview = catchAsync(async (req, res, next) => {
   const review = await reviewService.approveReview(req.params.id);
+
+  if (review && review.userId) {
+    await sendNotificationToUser(review.userId, {
+      type: "update",
+      title: "Review Published",
+      message: "Your review has been approved and is now live.",
+      data: { reviewId: review._id },
+    });
+  }
+
   res.status(200).json({
     status: httpStatusText.SUCCESS,
     data: { review }
@@ -59,6 +70,16 @@ const approveReview = catchAsync(async (req, res, next) => {
 
 const rejectReview = catchAsync(async (req, res, next) => {
   const review = await reviewService.rejectReview(req.params.id);
+
+  if (review && review.userId) {
+    await sendNotificationToUser(review.userId, {
+      type: "update",
+      title: "Review Rejected",
+      message: "Your review has been rejected as it violates our guidelines.",
+      data: { reviewId: review._id },
+    });
+  }
+
   res.status(200).json({
     status: httpStatusText.SUCCESS,
     data: { review }

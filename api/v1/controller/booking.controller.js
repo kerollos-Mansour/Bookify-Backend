@@ -1,6 +1,7 @@
 const bookingService = require("../../v1/services/booking.service");
 const catchAsync = require("../../../shared/utils/catchError.utils");
 const httpStatusText = require("../../../shared/utils/appError.utils");
+const { sendNotificationToUser } = require("../../../sockets");
 
 /**
  * Create a new booking
@@ -11,6 +12,12 @@ exports.createBooking = catchAsync(async (req, res) => {
   const booking = await bookingService.createBooking({
     ...req.body,
     userId: req.user._id
+  });
+  await sendNotificationToUser(req.user._id, {
+    type: "booking",
+    title: "Booking Confirmed",
+    message: "Your booking has been successfully created!",
+    data: { bookingId: booking._id },
   });
   res.status(201).json({
     status: httpStatusText.SUCCESS,
@@ -61,6 +68,14 @@ exports.updateBookingStatus = catchAsync(async (req, res) => {
     req.params.id,
     req.body.status
   );
+  if (booking && booking.userId) {
+    await sendNotificationToUser(booking.userId, {
+      type: "update",
+      title: "Booking Status Update",
+      message: `Your booking status has been updated to ${booking.status}`,
+      data: { bookingId: booking._id },
+    });
+  }
   res.status(200).json({ status: httpStatusText.SUCCESS, data: booking });
 });
 
@@ -72,6 +87,13 @@ exports.updateBookingStatus = catchAsync(async (req, res) => {
  */
 exports.cancelBooking = catchAsync(async (req, res) => {
   const booking = await bookingService.cancelBooking(req.user, req.params.id);
+  
+  await sendNotificationToUser(req.user._id, {
+    type: "booking",
+    title: "Booking Cancelled",
+    message: "Your booking has been successfully cancelled.",
+    data: { bookingId: booking._id },
+  });
   res
     .status(200)
     .json({
