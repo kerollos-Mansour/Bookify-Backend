@@ -222,4 +222,7 @@ exports.hotelQuerySchema = Joi.object({
             "number.min": "Limit must be at least 1.",
             "number.max": "Limit cannot exceed 100.",
         }),
+    types: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
+    amenities: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
+    hotelRating: Joi.number(),
 });
