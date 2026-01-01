@@ -144,6 +144,7 @@ exports.updateHotelSchema = Joi.object({
     location: locationSchema.optional().messages({
         "object.base": "Location must be a valid object.",
     }),
+    featured: Joi.boolean().optional(),
 });
 
 // ID Parameter Schema (for routes like /hotels/:id)
