@@ -18,6 +18,7 @@ const imageRoutes = require("./routes/image.route");
 const financialsRoutes = require("./routes/financials.routes");
 const reviewRoutes = require("./routes/reviews.route");
 const settingsRoutes = require("./routes/settings.route");
+const notificationRoutes = require("./routes/notification.route");
 
 // Mount route modules
 router.use("/destinations", destinationRoutes);
@@ -36,5 +37,7 @@ router.use('/payment-methods', paymentMethodsRoutes);
 router.use('/financials', financialsRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/settings", settingsRoutes);
+router.use("/notifications", notificationRoutes);
 
 module.exports = router;
+

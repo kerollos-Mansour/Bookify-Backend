@@ -8,6 +8,20 @@ const { sendNotificationToUser } = require("../../../sockets");
 const createReview = catchAsync(async (req, res, next) => {
   const review = await reviewService.createReview(req.body);
 
+  // ✅ Notify vendor about new review
+  const Hotel = require("../../../shared/models/hotel.model");
+  const hotel = await Hotel.findById(review.hotelid).populate('vendorId');
+
+  if (hotel && hotel.vendorId) {
+    const { sendNotificationToUser } = require("../../../sockets");
+    await sendNotificationToUser(hotel.vendorId._id, {
+      type: "update",
+      title: "New Review Received",
+      message: `A new review has been submitted for ${hotel.name}`,
+      data: { reviewId: review._id, hotelId: hotel._id },
+    });
+  }
+
   res.status(201).json({
     status: httpStatusText.SUCCESS,
     data: { review }

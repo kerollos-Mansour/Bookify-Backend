@@ -50,12 +50,26 @@ exports.chatHandler = (io, socket) => {
       senderId: socket.userId,
       receiverId,
       content,
-      createdAt: newMessage.createdAt, 
+      createdAt: newMessage.createdAt,
     };
 
     io.to(room).emit("chat:message", message);
 
     console.log(`💬 ${socket.userId} → ${receiverId}: ${content}`);
+
+    // ✅ Send notification if receiver is not in the room or offline
+    const { sendNotificationToUser } = require("./index");
+    const receiverSockets = await io.in(room).fetchSockets();
+    const receiverInRoom = receiverSockets.some(s => s.userId === receiverId);
+
+    if (!receiverInRoom) {
+      await sendNotificationToUser(receiverId, {
+        type: "message",
+        title: "New Message",
+        message: `${socket.username}: ${content.substring(0, 50)}${content.length > 50 ? '...' : ''}`,
+        data: { senderId: socket.userId, messageId: newMessage._id },
+      });
+    }
   });
 
 
