@@ -1,10 +1,23 @@
 const Booking = require("../../../shared/models/booking.model");
 const Coupon = require("../../../shared/models/coupons.model");
 
-exports.getRevenueStats = async () => {
+exports.getRevenueStats = async (req) => {
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+
+    // Build filter based on user role
+    let bookingFilter = {};
+    if (userRole === "vendor") {
+        const Hotel = require("../../../shared/models/hotel.model");
+        const hotels = await Hotel.find({ ownerId: userId });
+        const hotelIds = hotels.map((h) => h._id);
+        bookingFilter = { hotelId: { $in: hotelIds } };
+    }
+
     const revenueStats = await Booking.aggregate([
         {
             $match: {
+                ...bookingFilter,
                 paymentStatus: "paid",
                 status: { $ne: "cancelled" }
             }
@@ -22,6 +35,7 @@ exports.getRevenueStats = async () => {
     const monthlyRevenue = await Booking.aggregate([
         {
             $match: {
+                ...bookingFilter,
                 paymentStatus: "paid",
                 status: { $ne: "cancelled" }
             }
@@ -45,17 +59,31 @@ exports.getRevenueStats = async () => {
     };
 };
 
-exports.getTransactions = async (page = 1, limit = 10) => {
+exports.getTransactions = async (req) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const transactions = await Booking.find({ paymentStatus: { $in: ["paid", "refunded"] } })
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+
+    // Build filter based on user role
+    let bookingFilter = { paymentStatus: { $in: ["paid", "refunded"] } };
+    if (userRole === "vendor") {
+        const Hotel = require("../../../shared/models/hotel.model");
+        const hotels = await Hotel.find({ ownerId: userId });
+        const hotelIds = hotels.map((h) => h._id);
+        bookingFilter.hotelId = { $in: hotelIds };
+    }
+
+    const transactions = await Booking.find(bookingFilter)
         .populate("userId", "name email")
         .populate("hotelId", "name")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 
-    const total = await Booking.countDocuments({ paymentStatus: { $in: ["paid", "refunded"] } });
+    const total = await Booking.countDocuments(bookingFilter);
 
     return {
         transactions,

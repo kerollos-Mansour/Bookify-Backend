@@ -10,7 +10,7 @@ const sendEmail = require('../../../shared/utils/email.util');
 const emailTemplates = require('../../../shared/utils/emailTemplates.utils');
 
 exports.register = async (userData) => {
-  const { username, name, phoneNo, email, password,isAdmin } = userData;
+  const { username, name, phoneNo, email, password, isAdmin } = userData;
   console.log(userData)
   if (!username || !email || !password) {
     throw new ApiError("Username, email, and password are required", 400);
@@ -25,7 +25,7 @@ exports.register = async (userData) => {
       throw new ApiError("Username already exists", 400);
     }
   }
-  const user = await User.create({ username, name, phoneNo, email, password,isAdmin });
+  const user = await User.create({ username, name, phoneNo, email, password, isAdmin });
 
   const accessToken = generateToken(user);
   const refreshToken = generateRefreshToken(user);
@@ -102,7 +102,8 @@ exports.forgotPassword = async (userData) => {
     }
 
     const resetToken = crypto.randomInt(100000, 999999).toString();
-    const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const resetURL = `${process.env.FRONTEND_URL}reset-password/${resetToken}`;
+
     sendEmail({
       email,
       subject: "Password Reset",
@@ -110,6 +111,7 @@ exports.forgotPassword = async (userData) => {
     })
 
     user.resetToken = resetToken;
+    user.resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
     await user.save();
 
     return resetToken;
@@ -117,3 +119,27 @@ exports.forgotPassword = async (userData) => {
     throw new ApiError(error.message, 500);
   }
 }
+
+exports.resetPassword = async ({ token, password }) => {
+  if (!token || !password) {
+    throw new ApiError("Token and new password are required", 400);
+  }
+
+  // Find user with valid reset token
+  const user = await User.findOne({
+    resetToken: token,
+    resetTokenExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new ApiError("Invalid or expired reset token", 400);
+  }
+
+  // Update password
+  user.password = password;
+  user.resetToken = undefined;
+  user.resetTokenExpiry = undefined;
+  await user.save();
+
+  return { message: "Password reset successful" };
+};

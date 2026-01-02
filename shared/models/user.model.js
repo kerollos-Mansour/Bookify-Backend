@@ -87,7 +87,18 @@ const userSchema = new mongoose.Schema(
         isAdmin: {
             type: Boolean,
             default: true
-        }
+        },
+        refreshToken: {
+            type: String,
+        },
+        resetTokenExpiry: {
+            type: Date,
+        },
+        googleId: {
+            type: String,
+            unique: true,
+            sparse: true, // Allows null values while maintaining uniqueness
+        },
     },
     { timestamps: true }
 ); // automatically adds createdAt & updatedAt
@@ -101,6 +112,9 @@ userSchema.pre("save", async function () {
 userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
+
+// Add index for Google OAuth lookups
+userSchema.index({ googleId: 1 });
 
 const User = mongoose.model("User", userSchema);
 

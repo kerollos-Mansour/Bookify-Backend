@@ -19,6 +19,7 @@ const financialsRoutes = require("./routes/financials.routes");
 const reviewRoutes = require("./routes/reviews.route");
 const settingsRoutes = require("./routes/settings.route");
 const notificationRoutes = require("./routes/notification.route");
+const dashboardRoutes = require("./routes/dashboard.route");
 
 // Mount route modules
 router.use("/destinations", destinationRoutes);
@@ -38,6 +39,7 @@ router.use('/financials', financialsRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/notifications", notificationRoutes);
+router.use("/dashboard", dashboardRoutes);
 
 module.exports = router;
 

@@ -36,7 +36,7 @@ exports.forgotPasswordTemplate = (resetLink) => {
                 <p>We received a request to reset the password for your Bookify account. If you didn't make this request, you can safely ignore this email.</p>
                 
                 <div class="button-container">
-                    <a href="{{reset_link}}" class="button">Reset Password</a>
+                    <a href="${resetLink}" class="button">Reset Password</a>
                 </div>
                 <p>This link will expire in 24 hours for your security.</p>
                 <p>Best regards,<br>The Bookify Team</p>
@@ -92,30 +92,30 @@ exports.confirmReservationTemplate = (data) => {
             </div>
             <!-- Content -->
             <div class="content">
-                <p>Hi {{user_name}},</p>
-                <p>Great news! Your reservation at <strong>{{hotel_name}}</strong> has been confirmed.</p>
+                <p>Hi ${data.user_name},</p>
+                <p>Great news! Your reservation at <strong>${data.hotel_name}</strong> has been confirmed.</p>
                 
                 <div class="booking-details">
                     <div class="detail-row">
                         <span class="detail-label">Check-in</span>
-                        <span class="detail-value">{{check_in_date}}</span>
+                        <span class="detail-value">${data.check_in_date}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Check-out</span>
-                        <span class="detail-value">{{check_out_date}}</span>
+                        <span class="detail-value">${data.check_out_date}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Guests</span>
-                        <span class="detail-value">{{guest_count}}</span>
+                        <span class="detail-value">${data.guest_count}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Total Price</span>
-                        <span class="detail-value" style="font-weight: 700; color: #2563EB;">{{total_price}}</span>
+                        <span class="detail-value" style="font-weight: 700; color: #2563EB;">${data.total_price}</span>
                     </div>
                 </div>
                 <p>We've attached your receipt to this email.</p>
                 
-                <a href="{{booking_link}}" class="button">View Booking Details</a>
+                <a href="${data.booking_link}" class="button">View Booking Details</a>
             </div>
             <!-- Footer -->
             <div class="footer">
@@ -130,7 +130,7 @@ exports.confirmReservationTemplate = (data) => {
     `
 }
 
-exports.welcomeTemplate = (userName, exploreLink) => {
+exports.welcomeTemplate = (userName, exploreLink = `${process.env.FRONTEND_URL}/explore`) => {
     return `
     <!DOCTYPE html>
 <html>
@@ -164,7 +164,7 @@ exports.welcomeTemplate = (userName, exploreLink) => {
             </div>
             <!-- Content -->
             <div class="content">
-                <p>Hi {{user_name}},</p>
+                <p>Hi ${userName},</p>
                 <p>We're thrilled to have you on board. At Bookify, we make it easy to find and book unique accommodations around the globe, from cozy apartments to luxury hotels.</p>
                 
                 <h3>What you can do next:</h3>
@@ -174,7 +174,7 @@ exports.welcomeTemplate = (userName, exploreLink) => {
                     <li>Get exclusive deals and offers</li>
                 </ul>
                 <div style="text-align: center; margin-top: 30px;">
-                    <a href="{{explore_link}}" class="button">Start Exploring</a>
+                    <a href="${exploreLink}" class="button">Start Exploring</a>
                 </div>
             </div>
             <!-- Footer -->
