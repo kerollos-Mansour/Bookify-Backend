@@ -25,9 +25,14 @@ app.post(
 
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost', 'http://localhost:80'],
   credentials: true
 }));
+
+// Health check endpoint for Docker
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
 
 app.use('/api/v1', v1Routes);
 
