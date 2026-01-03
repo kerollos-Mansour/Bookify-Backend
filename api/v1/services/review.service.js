@@ -58,7 +58,7 @@ const getAllReviews = async (filters = {}, pagination = {}, sorting = {}) => {
   // Execute queries
   const reviews = await Review.find(query)
     .populate('userid', 'username email')
-    .populate('hotelid', 'name') 
+    .populate('hotelid', 'name location')
     .sort(sort)
     .skip(skip)
     .limit(limit);
