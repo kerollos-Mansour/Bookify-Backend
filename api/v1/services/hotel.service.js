@@ -3,7 +3,7 @@ const Room = require("../../../shared/models/rooms.model");
 const Booking = require("../../../shared/models/booking.model");
 const mongoose = require("mongoose");
 const AppError = require("../../../shared/utils/appError.utils");
-const Amenity = require("../../../shared/models/amenity.model"); 
+const Amenity = require("../../../shared/models/amenity.model");
 
 //  * Create a new hotel
 
@@ -77,7 +77,7 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}, user = 
   // 2. Amenities Check 
   if (filters.amenities && filters.amenities.length > 0) {
     let amenityNames = filters.amenities;
-    if (typeof amenityNames === 'string'){
+    if (typeof amenityNames === 'string') {
       amenityNames = amenityNames.split(',');
     }
     // Find Amenity IDs by name
@@ -133,9 +133,9 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}, user = 
   // Property Type Filter
   if (filters.types && filters.types.length > 0) {
     let types = filters.types;
-    if (typeof types === 'string'){
+    if (typeof types === 'string') {
       types = types.split(',');
-    } 
+    }
     query.type = { $in: types.map(t => new RegExp(`^${t.trim()}$`, 'i')) };
   }
 
@@ -154,15 +154,26 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}, user = 
   if (filters.maxRate) {
     query.highRate = { $lte: Number(filters.maxRate) };
   }
-    if (filters.hotelRating) {
-      query.tripAdvisorRating = { $gte: Number(filters.hotelRating) };
+  if (filters.hotelRating) {
+    query.tripAdvisorRating = { $gte: Number(filters.hotelRating) };
   }
 
   if (filters.propertyCategory) {
     query.propertyCategory = filters.propertyCategory;
   }
+
   if (filters.search) {
-    query.name = { $regex: filters.search, $options: "i" };
+    query.$or = [
+      { name: { $regex: filters.search, $options: "i" } }, // Added hotel name search
+      { "location.city": { $regex: filters.search, $options: "i" } },
+      { "location.address": { $regex: filters.search, $options: "i" } },
+      { "location.countryCode": { $regex: filters.search, $options: "i" } }
+    ];
+  }
+
+
+  if (filters.name) {
+    query.name = { $regex: filters.name, $options: "i" };
   }
   // 4. Sorting
   const sort = {};

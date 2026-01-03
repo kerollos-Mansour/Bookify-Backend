@@ -7,6 +7,7 @@ const {
     deleteUser,
     updateUser,
     changeUserRole,
+    sendResetPassword,
 } = require("../controller/user.controller");
 const { protect, allowTo } = require("../../../shared/middlewares/jwt.middleware");
 const validate = require("../../../shared/middlewares/validate.middleware");
@@ -43,6 +44,13 @@ router.patch(
     allowTo("admin"),
     validate({ params: userIdSchema, body: changeUserRoleSchema }),
     changeUserRole
+);
+
+router.post(
+    "/:id/reset-password",
+    allowTo("admin"),
+    validate({ params: userIdSchema }),
+    sendResetPassword
 );
 
 module.exports = router;

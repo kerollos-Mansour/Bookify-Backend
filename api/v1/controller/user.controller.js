@@ -1,5 +1,6 @@
 const User = require("../../../shared/models/user.model");
 const userService = require("../services/user.service");
+const authService = require("../services/auth.service");
 const catchAsync = require("../../../shared/utils/catchError.utils");
 const AppError = require("../../../shared/utils/appError.utils");
 
@@ -80,5 +81,23 @@ exports.changeUserRole = catchAsync(async (req, res, next) => {
             id: user._id,
             role: user.role,
         },
+    });
+});
+
+exports.sendResetPassword = catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+        return next(new AppError("User not found", 404));
+    }
+
+    // Trigger forgot password flow
+    // authService.forgotPassword expects { email }
+    await authService.forgotPassword({ email: user.email });
+
+    res.status(200).json({
+        status: "success",
+        message: `Password reset link sent to ${user.email}`,
     });
 });

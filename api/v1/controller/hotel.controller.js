@@ -23,9 +23,22 @@ const createHotel = catchAsync(async (req, res, next) => {
 /**
  * Get all hotels with filtering, pagination, and sorting
  * GET /api/v1/hotels?location=xxx&checkIn=2024-02-06&checkOut=2024-02-08&adults=2&rooms=1&city=xxx&country=xxx&minRate=100&maxRate=500&search=xxx&sort=rating&page=1&limit=10
- */
-const getHotels = catchAsync(async (req, res, next) => {
-    const { city, country, minRate, maxRate, propertyCategory, search, location, featured, checkIn, checkOut, adults, rooms, types, amenities, hotelRating} = req.query;
+ */const getHotels = catchAsync(async (req, res, next) => {
+    const { 
+        city, 
+        country, 
+        minRate, 
+        maxRate, 
+        propertyCategory, 
+        search, // Main search (hotel name OR location)
+        name,   // Specific hotel name filter from sidebar
+        location, 
+        featured, 
+        checkIn, 
+        checkOut, 
+        adults, 
+        rooms 
+    } = req.query;
     const { page, limit } = req.query;
     const { sort } = req.query;
 
@@ -35,16 +48,14 @@ const getHotels = catchAsync(async (req, res, next) => {
         minRate,
         maxRate,
         propertyCategory,
-        search,
+        search,      // Main search from SearchBar (hotel name OR location)
+        name: name || undefined, // Specific hotel name from sidebar
         location,
         featured,
         checkIn,
         checkOut,
         adults: adults ? Number(adults) : undefined,
-        rooms: rooms ? Number(rooms) : undefined,
-        types, 
-        amenities,
-        hotelRating
+        rooms: rooms ? Number(rooms) : undefined
     };
     const pagination = { page, limit };
     const sorting = { sort };
@@ -61,7 +72,6 @@ const getHotels = catchAsync(async (req, res, next) => {
         }
     });
 });
-
 /**
  * Get a single hotel by ID
  * GET /api/v1/hotels/:id
