@@ -73,15 +73,23 @@ exports.createHotelSchema = Joi.object({
     location: locationSchema.optional().messages({
         "object.base": "Location must be a valid object.",
     }),
-    hotelDetails: Joi.string().trim().optional().messages({
-        "string.base": "Hotel details must be a valid text.",
-    }),
     featured: Joi.boolean().optional().messages({
         "boolean.base": "Featured must be true or false",
     }),
     hotelDetails: Joi.string().trim().optional().messages({
         "string.base": "Hotel details must be a valid text.",
     }),
+    amenities: Joi.array()
+        .items(
+            Joi.string().hex().length(24).messages({
+                "string.hex": "Amenity ID must be a valid hex string.",
+                "string.length": "Amenity ID must be 24 characters long.",
+            })
+        )
+        .optional()
+        .messages({
+            "array.base": "Amenities must be an array.",
+        }),
 });
 
 // Update Hotel Schema
@@ -132,9 +140,6 @@ exports.updateHotelSchema = Joi.object({
         "number.base": "High rate must be a valid number.",
         "number.min": "High rate cannot be negative.",
     }),
-    location: locationSchema.optional().messages({
-        "object.base": "Location must be a valid object.",
-    }),
     featured: Joi.boolean().optional().messages({
         "boolean.base": "Featured must be true or false",
     }),
@@ -144,7 +149,17 @@ exports.updateHotelSchema = Joi.object({
     location: locationSchema.optional().messages({
         "object.base": "Location must be a valid object.",
     }),
-    featured: Joi.boolean().optional(),
+    amenities: Joi.array()
+        .items(
+            Joi.string().hex().length(24).messages({
+                "string.hex": "Amenity ID must be a valid hex string.",
+                "string.length": "Amenity ID must be 24 characters long.",
+            })
+        )
+        .optional()
+        .messages({
+            "array.base": "Amenities must be an array.",
+        }),
 });
 
 // ID Parameter Schema (for routes like /hotels/:id)
@@ -225,4 +240,7 @@ exports.hotelQuerySchema = Joi.object({
     types: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
     amenities: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
     hotelRating: Joi.number(),
+    name: Joi.string().trim().optional().messages({
+        "string.base": "Name must be a valid text.",
+    }),
 });
