@@ -9,7 +9,7 @@ const { initializeSocketIO } = require("./sockets");
 const AppError = require('./shared/utils/appError.utils');
 const globalErrorHandler = require('./shared/middlewares/ErrorHandeler.middleware');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 

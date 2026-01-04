@@ -97,7 +97,6 @@ const broadcastUserList = () => {
 
 const Notification = require("../shared/models/notification.model");
 
-// --- Notification Helpers ---
 
 /**
  * Send a notification to a specific user by ID and SAVE to DB
