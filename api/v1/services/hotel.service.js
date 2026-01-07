@@ -198,7 +198,13 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}, user = 
   hotels = await Promise.all(
     hotels.map(async (hotelDoc) => {
       const hotel = hotelDoc.toObject();
+
+      // Aggregate amenities from rooms
       const rooms = await Room.find({ hotelId: hotel._id }).populate("amenities");
+
+      // Calculate total rooms
+      hotel.totalRooms = rooms.length;
+
       const amenitiesMap = new Map();
       rooms.forEach((room) => {
         if (room.amenities && Array.isArray(room.amenities)) {
@@ -210,6 +216,44 @@ const getAllHotels = async (filters = {}, pagination = {}, sorting = {}, user = 
         }
       });
       hotel.amenities = Array.from(amenitiesMap.values());
+
+      // Calculate price range from rooms using aggregation
+      const priceAggregation = await Room.aggregate([
+        {
+          $match: {
+            hotelId: hotel._id,
+            status: { $ne: "maintenance" } // Exclude maintenance rooms
+          }
+        },
+        {
+          $project: {
+            effectivePrice: {
+              $cond: {
+                if: { $and: [{ $gt: ["$price.discounted", 0] }, { $ne: ["$price.discounted", null] }] },
+                then: "$price.discounted",
+                else: "$price.original"
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            lowRate: { $min: "$effectivePrice" },
+            highRate: { $max: "$effectivePrice" }
+          }
+        }
+      ]);
+
+      // Set price range from aggregation result
+      if (priceAggregation.length > 0 && priceAggregation[0].lowRate) {
+        hotel.lowRate = priceAggregation[0].lowRate;
+        hotel.highRate = priceAggregation[0].highRate;
+      } else {
+        hotel.lowRate = null;
+        hotel.highRate = null;
+      }
+
       return hotel;
     })
   );
@@ -256,6 +300,44 @@ const getHotelById = async (id) => {
   // Convert hotel to object to attach amenities
   hotel = hotel.toObject();
   hotel.amenities = Array.from(amenitiesMap.values());
+  hotel.totalRooms = rooms.length;
+
+  // Calculate price range from rooms using aggregation
+  const priceAggregation = await Room.aggregate([
+    {
+      $match: {
+        hotelId: new mongoose.Types.ObjectId(id),
+        status: { $ne: "maintenance" } // Exclude maintenance rooms
+      }
+    },
+    {
+      $project: {
+        effectivePrice: {
+          $cond: {
+            if: { $and: [{ $gt: ["$price.discounted", 0] }, { $ne: ["$price.discounted", null] }] },
+            then: "$price.discounted",
+            else: "$price.original"
+          }
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        lowRate: { $min: "$effectivePrice" },
+        highRate: { $max: "$effectivePrice" }
+      }
+    }
+  ]);
+
+  // Set price range from aggregation result
+  if (priceAggregation.length > 0 && priceAggregation[0].lowRate) {
+    hotel.lowRate = priceAggregation[0].lowRate;
+    hotel.highRate = priceAggregation[0].highRate;
+  } else {
+    hotel.lowRate = null;
+    hotel.highRate = null;
+  }
 
   return hotel;
 };
