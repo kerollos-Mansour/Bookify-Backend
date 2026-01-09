@@ -1,5 +1,9 @@
 const express = require('express');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const path = require('path');
+
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+dotenv.config({ path: path.resolve(__dirname, envFile) });
 const { connectToMongoDB } = require('./shared/config/database.config');
 const v1Routes = require('./api/v1');
 const cors = require('cors');
@@ -25,7 +29,7 @@ app.post(
 
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://localhost', 'http://localhost:80'],
+  origin: ['https://bookify-dashboard-kappa.vercel.app', 'http://localhost:5173', 'http://localhost:3000', 'http://localhost', 'http://localhost:80'],
   credentials: true
 }));
 
