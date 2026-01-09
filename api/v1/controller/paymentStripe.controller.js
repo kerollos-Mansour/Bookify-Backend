@@ -37,20 +37,23 @@ exports.handleStripeWebhook = (req, res) => {
 
   const intent = event.data.object;
   const bookingId = intent.metadata?.bookingId;
+  const bookingType = intent.metadata?.bookingType || "hotel";
 
   if (!bookingId) {
     return res.status(200).json({ received: true });
   }
 
+  const Model = bookingType === "flight" ? require("../../../shared/models/flightBooking.model") : Booking;
+
   if (event.type === "payment_intent.succeeded") {
-    Booking.findByIdAndUpdate(bookingId, {
+    Model.findByIdAndUpdate(bookingId, {
       paymentStatus: "paid",
       status: "confirmed",
     }).exec();
   }
 
   if (event.type === "payment_intent.payment_failed") {
-    Booking.findByIdAndUpdate(bookingId, {
+    Model.findByIdAndUpdate(bookingId, {
       paymentStatus: "failed",
     }).exec();
   }

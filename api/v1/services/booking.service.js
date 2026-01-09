@@ -66,8 +66,8 @@ const createBooking = async (bookingData) => {
 
     const pricePerNight =
         room.price.discounted &&
-        room.price.discounted > 0 &&
-        room.price.discounted < room.price.original
+            room.price.discounted > 0 &&
+            room.price.discounted < room.price.original
             ? room.price.discounted
             : room.price.original;
 
@@ -379,6 +379,11 @@ const updateBooking = async (bookingId, updateData, userId, isAdmin) => {
     return updatedBooking;
 };
 
+const getUserBookings = async (userId) => {
+    const bookings = await Booking.find({ userId });
+    return bookings;
+};
+
 module.exports = {
     createBooking,
     getAllBookings,
@@ -386,4 +391,5 @@ module.exports = {
     cancelBooking,
     updateBookingStatus,
     updateBooking,
+    getUserBookings
 };

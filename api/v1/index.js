@@ -20,6 +20,8 @@ const reviewRoutes = require("./routes/reviews.route");
 const settingsRoutes = require("./routes/settings.route");
 const notificationRoutes = require("./routes/notification.route");
 const dashboardRoutes = require("./routes/dashboard.route");
+const flightRoutes = require("./routes/flight.route");
+const flightBookingRoutes = require("./routes/flightBooking.route");
 
 // Mount route modules
 router.use("/destinations", destinationRoutes);
@@ -40,6 +42,8 @@ router.use("/reviews", reviewRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/notifications", notificationRoutes);
 router.use("/dashboard", dashboardRoutes);
+router.use("/flights", flightRoutes);
+router.use("/flight-bookings", flightBookingRoutes);
 
 module.exports = router;
 
