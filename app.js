@@ -2,8 +2,12 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
 dotenv.config({ path: path.resolve(__dirname, envFile) });
+
+if (process.env.NODE_ENV === 'production' && !process.env.MONGODB_URI) {
+  dotenv.config({ path: path.resolve(__dirname, '.env') });
+}
 const { connectToMongoDB } = require('./shared/config/database.config');
 const v1Routes = require('./api/v1');
 const cors = require('cors');
@@ -13,7 +17,7 @@ const { initializeSocketIO } = require("./sockets");
 const AppError = require('./shared/utils/appError.utils');
 const globalErrorHandler = require('./shared/middlewares/ErrorHandeler.middleware');
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 const app = express();
 

@@ -117,7 +117,7 @@ userSchema.methods.comparePassword = async function (password) {
 };
 
 // Add index for Google OAuth lookups
-userSchema.index({ googleId: 1 });
+
 
 const User = mongoose.model("User", userSchema);
 

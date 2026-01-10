@@ -26,45 +26,45 @@ const destinationSchema = new mongoose.Schema({
         ref: 'Category',
         required: true
     },
-    
+
     // Pre-configured search parameters - THE KEY PART
     searchConfig: {
         // Location-based filters
         location: { type: String, trim: true },      // Free text search
         city: { type: String, trim: true },
         country: { type: String, trim: true },
-        
+
         // Price range
         minRate: { type: Number, default: null },
         maxRate: { type: Number, default: null },
-        
+
         // Hotel properties
         propertyCategory: { type: String },          // e.g., "luxury", "budget"
         minRating: { type: Number, min: 0, max: 5 },
-        
+
         // Amenities filter (optional enhancement)
         amenities: [{ type: String }],
-        
+
         // Default sorting for this destination
         defaultSort: {
             type: String,
             enum: ['rating', '-rating', 'price', '-price', 'popularity'],
             default: '-rating'
         },
-        
+
         // Default pagination
         defaultLimit: {
             type: Number,
             default: 10
         }
     },
-    
+
     // UI Display properties
     bestSeller: { type: Boolean, default: false },
     featured: { type: Boolean, default: false },
     rating: { type: Number, default: 0, min: 0, max: 5 },
     displayOrder: { type: Number, default: 0 },
-    
+
     // Metadata
     isActive: { type: Boolean, default: true }
 }, {
@@ -73,7 +73,7 @@ const destinationSchema = new mongoose.Schema({
 
 // Indexes
 destinationSchema.index({ categoryId: 1, isActive: 1 });
-destinationSchema.index({ slug: 1 });
+
 destinationSchema.index({ bestSeller: 1, displayOrder: 1 });
 
 module.exports = mongoose.model('Destination', destinationSchema);

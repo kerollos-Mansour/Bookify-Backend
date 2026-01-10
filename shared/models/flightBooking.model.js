@@ -53,8 +53,7 @@ const flightBookingSchema = new mongoose.Schema({
     bookingNumber: {
         type: String,
         required: [true, 'Booking number is required'],
-        unique: true,
-        index: true
+        unique: true
     },
     pnr: {
         type: String, // Passenger Name Record
@@ -133,16 +132,14 @@ const flightBookingSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['pending', 'confirmed', 'cancelled', 'completed', 'checked-in'],
-        default: 'pending',
-        index: true
+        default: 'pending'
     },
 
     // Payment Information
     paymentStatus: {
         type: String,
         enum: ['unpaid', 'pending', 'paid', 'refunded', 'failed'],
-        default: 'pending',
-        index: true
+        default: 'pending'
     },
     paymentMethod: {
         type: String,
@@ -189,11 +186,10 @@ const flightBookingSchema = new mongoose.Schema({
 });
 
 // Indexes for better query performance
-flightBookingSchema.index({ userId: 1 });
-flightBookingSchema.index({ flightId: 1 });
+
 flightBookingSchema.index({ status: 1 });
 flightBookingSchema.index({ paymentStatus: 1 });
-flightBookingSchema.index({ bookingNumber: 1 });
+
 flightBookingSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('FlightBooking', flightBookingSchema);

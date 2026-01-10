@@ -98,6 +98,6 @@ hotelSchema.index({ "location.countryCode": 1 });
 hotelSchema.index({ hotelRating: -1 });
 hotelSchema.index({ lowRate: 1 });
 hotelSchema.index({ propertyCategory: 1 });
-hotelSchema.index({ ownerId: 1 });
+
 
 module.exports = mongoose.model("Hotel", hotelSchema);

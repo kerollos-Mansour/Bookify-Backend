@@ -10,7 +10,7 @@ const flightSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Flight number is required'],
         trim: true,
-        index: true
+        trim: true
     },
     aircraft: {
         type: String,
@@ -28,8 +28,7 @@ const flightSchema = new mongoose.Schema({
         },
         dateTime: {
             type: Date,
-            required: [true, 'Departure date/time is required'],
-            index: true
+            required: [true, 'Departure date/time is required']
         }
     },
 
@@ -71,8 +70,8 @@ const flightSchema = new mongoose.Schema({
         duration: Number // in minutes
     }],
 
-        // Pricing with Fare Classes
-        pricing: {
+    // Pricing with Fare Classes
+    pricing: {
         economy: {
             available: { type: Boolean, default: true },
             price: { type: Number, min: 0 },
@@ -90,73 +89,72 @@ const flightSchema = new mongoose.Schema({
         }
     },
 
-        // Fare Class Details (for expandable cards)
-        fareClasses: [{
-            name: {
-                type: String,
-                enum: ['Economy Saver', 'Economy Flex', 'Business', 'First Class'],
-                required: true
+    // Fare Class Details (for expandable cards)
+    fareClasses: [{
+        name: {
+            type: String,
+            enum: ['Economy Saver', 'Economy Flex', 'Business', 'First Class'],
+            required: true
+        },
+        cabin: {
+            type: String,
+            enum: ['Economy', 'Business', 'First'],
+            required: true
+        },
+        price: {
+            type: Number,
+            required: true,
+            min: 0
+        },
+        features: {
+            seatSelection: {
+                included: { type: Boolean, default: false },
+                fee: { type: Number, default: 0 }
             },
-            cabin: {
-                type: String,
-                enum: ['Economy', 'Business', 'First'],
-                required: true
+            carryOn: {
+                included: { type: Boolean, default: true },
+                weight: { type: Number, default: 7 } // kg
             },
-            price: {
+            checkedBags: {
+                count: { type: Number, default: 0 },
+                weight: { type: Number, default: 0 }, // kg per bag
+                fee: { type: Number, default: 0 } // per bag
+            },
+            cancellationFee: {
                 type: Number,
-                required: true,
-                min: 0
-            },
-            features: {
-                seatSelection: {
-                    included: { type: Boolean, default: false },
-                    fee: { type: Number, default: 0 }
-                },
-                carryOn: {
-                    included: { type: Boolean, default: true },
-                    weight: { type: Number, default: 7 } // kg
-                },
-                checkedBags: {
-                    count: { type: Number, default: 0 },
-                    weight: { type: Number, default: 0 }, // kg per bag
-                    fee: { type: Number, default: 0 } // per bag
-                },
-                cancellationFee: {
-                    type: Number,
-                    default: 0
-                },
-                changeFee: {
-                    type: Number,
-                    default: 0
-                },
-                refundable: {
-                    type: Boolean,
-                    default: false
-                }
-            },
-            availableSeats: {
-                type: Number,
-                min: 0,
                 default: 0
+            },
+            changeFee: {
+                type: Number,
+                default: 0
+            },
+            refundable: {
+                type: Boolean,
+                default: false
             }
-        }],
+        },
+        availableSeats: {
+            type: Number,
+            min: 0,
+            default: 0
+        }
+    }],
 
-        // Flight Status
-        status: {
+    // Flight Status
+    status: {
         type: String,
         enum: ['scheduled', 'delayed', 'cancelled', 'completed'],
-        default: 'scheduled',
-        index: true
+        default: 'scheduled'
     },
 
-        // Amenities
-        amenities: [{
-            type: String,
-            enum: ['wifi', 'meals', 'entertainment', 'power-outlets', 'extra-legroom', 'priority-boarding']
-        }],
+    // Amenities
+    amenities: [{
+        type: String,
+        enum: ['wifi', 'meals', 'entertainment', 'power-outlets', 'extra-legroom', 'priority-boarding']
+    }],
 
-        // Baggage Allowance
-        baggage: {
+    // Baggage Allowance
+    baggage: {
         cabin: {
             weight: Number, // in kg
             pieces: Number
@@ -168,20 +166,19 @@ const flightSchema = new mongoose.Schema({
         }
     },
 
-        // Additional Info
-        refundable: {
+    // Additional Info
+    refundable: {
         type: Boolean,
         default: false
     },
 
-        featured: {
+    featured: {
         type: Boolean,
-        default: false,
-        index: true
+        default: false
     },
 
-        // Owner/Vendor
-        ownerId: {
+    // Owner/Vendor
+    ownerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         index: true

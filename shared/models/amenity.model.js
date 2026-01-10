@@ -29,6 +29,6 @@ const amenitySchema = new mongoose.Schema({
 
 // Add indexes for better query performance
 amenitySchema.index({ category: 1 });
-amenitySchema.index({ name: 1 });
+
 
 module.exports = mongoose.model('Amenity', amenitySchema);
