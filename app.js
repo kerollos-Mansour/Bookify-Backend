@@ -33,7 +33,7 @@ app.post(
 
 app.use(express.json());
 app.use(cors({
-  origin: ['https://bookify-dashboard-kappa.vercel.app', 'http://localhost:5173', 'http://localhost:3000', 'http://localhost', 'http://localhost:80'],
+  origin: ['https://bookify-dashboard-kappa.vercel.app', 'https://bookify-react-1q7nseadi-mohamed-sabry-avs-projects.vercel.app/', 'http://localhost:5173', 'http://localhost:3000', 'http://localhost', 'http://localhost:80'],
   credentials: true
 }));
 
